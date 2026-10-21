@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { uhQuestionsData, UHQuestion } from '../data/uhExerciseData';
 import { MathView } from './MathView';
+import { TanggaDiagramSvg } from './TanggaDiagramSvg';
 import {
   Trophy,
   Sparkles,
@@ -241,6 +242,38 @@ export const UhSection: React.FC = () => {
                   {q.isOptional ? `Bonus Maks +${q.points} Poin` : `Bobot: ${q.points} Poin`}
                 </div>
               </div>
+
+              {/* Stimulus Context Box if present */}
+              {q.stimulus && (
+                <div className="my-3.5 p-4 sm:p-5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/70 text-slate-800 dark:text-slate-200 shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-wider bg-indigo-600 text-white shadow-sm">
+                      <BookOpen className="w-3.5 h-3.5" />
+                      {q.stimulus.tag}
+                    </span>
+                    {q.stimulus.source && (
+                      <span className="text-[11px] font-medium text-indigo-700 dark:text-indigo-300 italic">
+                        Sumber: {q.stimulus.source}
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="font-bold text-sm sm:text-base text-indigo-950 dark:text-indigo-100 mb-1.5">
+                    {q.stimulus.title}
+                  </h4>
+                  <p className="text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                    {q.stimulus.text}
+                  </p>
+                </div>
+              )}
+
+              {/* SVG Diagram if present */}
+              {q.diagramType === 'tangga' && q.diagramConfig && (
+                <TanggaDiagramSvg
+                  panjangTangga={q.diagramConfig.panjangTangga}
+                  tinggiLabel={q.diagramConfig.tinggiLabel}
+                  jarakLabel={q.diagramConfig.jarakLabel}
+                />
+              )}
 
               {/* Question Text */}
               <div className="text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-medium">

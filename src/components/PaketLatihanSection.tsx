@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { paketAData, paketBData, UHQuestion } from '../data/uhExerciseData';
 import { MathView } from './MathView';
+import { TanggaDiagramSvg } from './TanggaDiagramSvg';
 import {
   Users,
   Home,
@@ -79,8 +80,40 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
         </div>
       </div>
 
+      {/* Stimulus Context Box if present */}
+      {question.stimulus && (
+        <div className="my-3.5 p-4 sm:p-5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/70 text-slate-800 dark:text-slate-200 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-wider bg-indigo-600 text-white shadow-sm">
+              <BookOpen className="w-3.5 h-3.5" />
+              {question.stimulus.tag}
+            </span>
+            {question.stimulus.source && (
+              <span className="text-[11px] font-medium text-indigo-700 dark:text-indigo-300 italic">
+                Sumber: {question.stimulus.source}
+              </span>
+            )}
+          </div>
+          <h4 className="font-bold text-sm sm:text-base text-indigo-950 dark:text-indigo-100 mb-1.5">
+            {question.stimulus.title}
+          </h4>
+          <p className="text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+            {question.stimulus.text}
+          </p>
+        </div>
+      )}
+
+      {/* SVG Diagram if present */}
+      {question.diagramType === 'tangga' && question.diagramConfig && (
+        <TanggaDiagramSvg
+          panjangTangga={question.diagramConfig.panjangTangga}
+          tinggiLabel={question.diagramConfig.tinggiLabel}
+          jarakLabel={question.diagramConfig.jarakLabel}
+        />
+      )}
+
       {/* Question Prompt */}
-      <div className="text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200">
+      <div className="text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-medium">
         {question.question}
       </div>
 

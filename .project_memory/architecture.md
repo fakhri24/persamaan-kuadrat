@@ -29,3 +29,8 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
 
 5. **Kebijakan Caching (Zero-Cache)**:
    - Diterapkan konfigurasi `no-cache, no-store, must-revalidate` pada meta tag `index.html` dan `firebase.json`.
+
+6. **Protokol Operasional (Continuous Deployment & Memory Sync)**:
+   - **Sinkronisasi Memori Otomatis**: Setiap keputusan arsitektur dan penambahan fitur wajib langsung dicatat ke `.project_memory/decisions.md` dan `architecture.md`.
+   - **Auto Push & Deploy**: Setiap perubahan yang telah diverifikasi (`npm run build`) harus langsung di-commit dan di-push ke branch `main` pada remote `origin` (`https://github.com/fakhri24/persamaan-kuadrat.git`).
+   - **GitHub Pages CI/CD**: Workflow GitHub Actions (`.github/workflows/deploy.yml`) akan secara otomatis mem-build dan men-deploy ke live URL GitHub Pages `https://fakhri24.github.io/persamaan-kuadrat/`.

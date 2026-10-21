@@ -1,3 +1,10 @@
+export interface UHStimulus {
+  tag: string;
+  title: string;
+  text: string;
+  source?: string;
+}
+
 export interface UHQuestion {
   id: string;
   number: number;
@@ -5,6 +12,13 @@ export interface UHQuestion {
   points: number; // 10 untuk wajib, 5 untuk opsional
   cognitiveLevel: 'Dasar' | 'Standar TKA' | 'Standar SNBT' | 'Problem Solving SNBT';
   categoryTag: string;
+  stimulus?: UHStimulus;
+  diagramType?: 'tangga';
+  diagramConfig?: {
+    panjangTangga: string;
+    tinggiLabel: string;
+    jarakLabel: string;
+  };
   question: string;
   mathPrompt?: string;
   type: 'text' | 'choice';
@@ -139,15 +153,21 @@ export const uhQuestionsData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Standar TKA',
-    categoryTag: 'Relasi Selisih Akar',
-    question: 'Akar-akar persamaan kuadrat x² - mx + 16 = 0 adalah p dan q. Jika diketahui p - q = 6 dan m > 0, tentukan nilai m yang memenuhi!',
-    mathPrompt: 'x^2 - mx + 16 = 0, \\quad p - q = 6',
+    categoryTag: 'Stimulus Numerasi: Relasi Selisih Akar',
+    stimulus: {
+      tag: 'STIMULUS NUMERASI: MISI LOGISTIK DRONE OTONOM',
+      title: 'Zona Pantau Waktu Transit Drone Medis',
+      text: 'Sebuah drone otonom pengantar bantuan medis diterbangkan melewati jalur perbukitan. Sistem telemetri mendeteksi waktu tempuh t (dalam detik) saat drone melintasi batas ketinggian zona kritis memenuhi persamaan kuadrat t² - mt + 16 = 0, dengan m adalah parameter daya dorong mesin (m > 0). Radar mencatat drone memasuki dan meninggalkan zona tersebut pada waktu t₁ = p dan t₂ = q dengan selisih waktu durasi transit sebesar p - q = 6 detik.',
+      source: 'Telemetri Sistem Navigasi Drone Cepat Tanggap',
+    },
+    question: 'Berdasarkan catatan telemetri radar di atas, tentukan nilai parameter daya dorong m (dengan m > 0) yang memenuhi persamaan tersebut!',
+    mathPrompt: 't^2 - mt + 16 = 0, \\quad p - q = 6, \\quad m > 0',
     type: 'text',
     correctAnswer: '10',
     acceptedAnswers: ['10', 'm = 10', 'm=10', '10.0'],
-    hint: 'Gunakan hubungan: (p - q)² = (p + q)² - 4pq.',
+    hint: 'p + q = m dan pq = 16. Gunakan identitas aljabar selisih akar: (p - q)² = (p + q)² - 4pq.',
     explanation:
-      'p + q = m dan pq = 16. (p - q)² = (p + q)² - 4pq ⇒ (6)² = m² - 4(16) ⇒ 36 = m² - 64 ⇒ m² = 100 ⇒ m = ±10. Karena m > 0, maka m = 10.',
+      'Berdasarkan teorema Vieta:\np + q = m dan pq = 16.\nHubungan selisih akar:\n(p - q)² = (p + q)² - 4pq\n(6)² = (m)² - 4(16)\n36 = m² - 64\nm² = 36 + 64 = 100\nm = ±10.\nKarena disyaratkan parameter daya dorong m > 0, maka m = 10.',
   },
   {
     id: 'uh-8',
@@ -199,15 +219,27 @@ export const uhQuestionsData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Standar SNBT',
-    categoryTag: 'Aplikasi Pythagoras Nyata',
-    question: 'Sebuah tangga yang panjangnya 15 m disandarkan ke tembok rumah. Jika tinggi tembok dari tanah ke ujung tangga lebih panjang 3 m dibandingkan dengan jarak tembok ke kaki tangga di tanah, tentukan tinggi tembok rumah tersebut (dalam meter)!',
-    mathPrompt: '\\text{Tangga } = 15\\text{ m}, \\quad t = x + 3',
+    categoryTag: 'Stimulus Geometri & K3: Teorema Pythagoras',
+    stimulus: {
+      tag: 'STIMULUS LITERASI & NUMERASI: KESELAMATAN KONSTRUKSI (K3)',
+      title: 'Standar Penempatan Tangga Penyelamatan Gedung',
+      text: 'Dalam prosedur simulasi keselamatan darurat gedung, teknisi menyandarkan tangga darurat berjangkauan 15 meter pada dinding beton vertikal. Agar tumpuan kokoh dan aman dinaiki, ketinggian vertikal ujung atas tangga di dinding (t) disyaratkan lebih tinggi 3 meter dibanding jarak horizontal tapak kaki tangga ke dasar dinding (x). Posisi tangga, dinding, dan lantai datar membentuk segitiga siku-siku seperti tampak pada diagram teknis berikut.',
+      source: 'Panduan Operasional Teknis K3 & Evakuasi Bangunan',
+    },
+    diagramType: 'tangga',
+    diagramConfig: {
+      panjangTangga: '15 m',
+      tinggiLabel: 't = x + 3 m',
+      jarakLabel: 'x m',
+    },
+    question: 'Berdasarkan spesifikasi regulasi dan diagram teknis di atas, hitunglah tinggi tembok yang dicapai oleh ujung tangga tersebut (dalam satuan meter)!',
+    mathPrompt: 'x^2 + (x + 3)^2 = 15^2, \\quad t = x + 3',
     type: 'text',
     correctAnswer: '12',
-    acceptedAnswers: ['12', '12 m', '12m', '12 meter', '12.0'],
-    hint: 'Gunakan dalil Pythagoras: (jarak kaki)² + (tinggi tembok)² = (panjang tangga)², yaitu x² + (x + 3)² = 15².',
+    acceptedAnswers: ['12', '12 m', '12m', '12 meter', 't = 12', 't=12', '12.0'],
+    hint: 'Gunakan dalil Pythagoras: (jarak kaki)² + (tinggi tembok)² = (panjang tangga)², yaitu x² + (x + 3)² = 15². Sederhanakan ke persamaan kuadrat, cari nilai x positif, lalu hitung t = x + 3.',
     explanation:
-      'Misalkan jarak kaki tangga ke tembok = x meter. Maka tinggi tembok = (x + 3) meter. Dalil Pythagoras: x² + (x + 3)² = 15² ⇒ 2x² + 6x + 9 = 225 ⇒ 2x² + 6x - 216 = 0 ⇒ x² + 3x - 108 = 0. Faktorkan: (x + 12)(x - 9) = 0 ⇒ x = 9 meter (jarak positif). Maka tinggi tembok = 9 + 3 = 12 meter.',
+      'Misalkan jarak tapak kaki tangga ke dinding = x meter. Maka tinggi tembok = (x + 3) meter.\nDalil Pythagoras:\nx² + (x + 3)² = 15²\nx² + (x² + 6x + 9) = 225\n2x² + 6x - 216 = 0\nBagi kedua ruas dengan 2:\nx² + 3x - 108 = 0\nFaktorkan:\n(x + 12)(x - 9) = 0\nDiperoleh x = 9 meter (karena jarak bernilai positif).\nMaka tinggi tembok yang dijangkau ujung tangga:\nt = x + 3 = 9 + 3 = 12 meter.',
   },
   {
     id: 'uh-11',
@@ -368,14 +400,21 @@ export const paketAData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Standar TKA',
-    categoryTag: 'Selisih Dua Akar',
-    question: 'Akar-akar persamaan kuadrat x² - 5x + p = 0 adalah x₁ dan x₂. Jika diketahui |x₁ - x₂| = 1, tentukan nilai p!',
-    mathPrompt: 'x^2 - 5x + p = 0, \\quad |x_1 - x_2| = 1',
+    categoryTag: 'Stimulus Numerasi: Relasi Selisih Akar',
+    stimulus: {
+      tag: 'STIMULUS NUMERASI: RISET AERODINAMIKA ROKET AIR',
+      title: 'Deteksi Ambang Ketinggian Sensor Penerbangan',
+      text: 'Dalam proyek sains terpadu, sekelompok siswa meluncurkan prototipe roket air vertikal ke udara. Sensor ketinggian mencatat model persamaan lintasan waktu terbang terhadap parameter gravitasi dan energi dorong memenuhi t² - 5t + p = 0 (dalam satuan detik t dan konstanta energi p). Sensor mencatat roket berada tepat pada garis ambang batas ketinggian radar pada dua waktu berbeda, t₁ dan t₂, dengan selisih waktu terukur sebesar |t₁ - t₂| = 1 detik.',
+      source: 'Modul Praktikum Fisika & Aerodinamika Sekolah',
+    },
+    question: 'Berdasarkan data bacaan di atas, hitunglah nilai konstanta energi parameter p yang memenuhi persamaan lintasan tersebut!',
+    mathPrompt: 't^2 - 5t + p = 0, \\quad |t_1 - t_2| = 1\\text{ detik}',
     type: 'text',
     correctAnswer: '6',
     acceptedAnswers: ['6', 'p = 6', 'p=6', '6.0'],
-    hint: '(x₁ - x₂)² = (x₁ + x₂)² - 4x₁x₂.',
-    explanation: '(1)² = (5)² - 4p ⇒ 1 = 25 - 4p ⇒ 4p = 24 ⇒ p = 6.',
+    hint: 'Gunakan rumus selisih akar: (t₁ - t₂)² = (t₁ + t₂)² - 4t₁t₂. Diketahui t₁ + t₂ = 5 dan t₁t₂ = p.',
+    explanation:
+      'Berdasarkan teorema Vieta:\nt₁ + t₂ = 5 dan t₁t₂ = p.\nHubungan selisih kuadrat akar:\n(t₁ - t₂)² = (t₁ + t₂)² - 4t₁t₂\n(1)² = (5)² - 4p\n1 = 25 - 4p\n4p = 25 - 1 = 24\np = 6.\nJadi, nilai parameter p adalah 6.',
   },
   {
     id: 'pa-8',
@@ -425,14 +464,27 @@ export const paketAData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Standar SNBT',
-    categoryTag: 'Aplikasi Geometri Tangga',
-    question: 'Sebuah tangga yang panjangnya 13 m disandarkan ke tembok rumah. Jika tinggi tembok lebih panjang 7 m dibandingkan dengan jarak tembok ke kaki tangga, maka tinggi tembok rumah tersebut adalah...',
-    mathPrompt: '\\text{Tangga } = 13\\text{ m}, \\quad t = x + 7',
+    categoryTag: 'Stimulus Geometri & K3: Teorema Pythagoras',
+    stimulus: {
+      tag: 'STIMULUS LITERASI & NUMERASI: KESELAMATAN KONSTRUKSI (K3)',
+      title: 'Pemasangan Tangga Kerja Perancah Perawatan Gedung',
+      text: 'Seorang teknisi pemeliharaan gedung menyandarkan tangga darurat sepanjang 13 meter ke dinding vertikal untuk menjangkau titik instalasi panel atap. Agar posisi tangga stabil dan memenuhi regulasi K3, jarak ujung atas tangga di dinding (t) dirancang lebih tinggi 7 meter dibandingkan jarak tumpuan kaki tangga ke pangkal dinding di lantai (x). Posisi tangga, dinding, dan lantai datar membentuk segitiga siku-siku seperti tampak pada diagram.',
+      source: 'Buku Saku K3 Teknik Sipil & Arsitektur',
+    },
+    diagramType: 'tangga',
+    diagramConfig: {
+      panjangTangga: '13 m',
+      tinggiLabel: 't = x + 7 m',
+      jarakLabel: 'x m',
+    },
+    question: 'Berdasarkan sketsa dan spesifikasi di atas, tentukan tinggi jangkauan ujung tangga pada dinding rumah tersebut (dalam satuan meter)!',
+    mathPrompt: 'x^2 + (x + 7)^2 = 13^2, \\quad t = x + 7',
     type: 'text',
     correctAnswer: '12',
-    acceptedAnswers: ['12', '12 m', '12m', '12 meter', '12.0'],
-    hint: 'x² + (x + 7)² = 13² ⇒ 2x² + 14x + 49 = 169.',
-    explanation: '2x² + 14x - 120 = 0 ⇒ x² + 7x - 60 = 0 ⇒ (x + 12)(x - 5) = 0 ⇒ x = 5 m. Tinggi tembok = 5 + 7 = 12 meter.',
+    acceptedAnswers: ['12', '12 m', '12m', '12 meter', 't = 12', 't=12', '12.0'],
+    hint: 'Terapkan teorema Pythagoras: x² + (x + 7)² = 13². Sederhanakan ke bentuk umum persamaan kuadrat ax² + bx + c = 0, cari nilai x positif, lalu hitung tinggi t = x + 7.',
+    explanation:
+      'Berdasarkan dalil Pythagoras pada segitiga siku-siku:\nx² + (x + 7)² = 13²\nx² + (x² + 14x + 49) = 169\n2x² + 14x + 49 - 169 = 0\n2x² + 14x - 120 = 0\nBagi kedua ruas dengan 2:\nx² + 7x - 60 = 0\nFaktorkan:\n(x + 12)(x - 5) = 0\nDiperoleh x = -12 (tidak memenuhi karena jarak fisik harus positif) atau x = 5 meter.\nTinggi dinding yang dicapai:\nt = x + 7 = 5 + 7 = 12 meter.',
   },
 ];
 
@@ -542,14 +594,21 @@ export const paketBData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Standar TKA',
-    categoryTag: 'Selisih Dua Akar',
-    question: 'Akar-akar persamaan kuadrat x² - 7x + k = 0 adalah x₁ dan x₂. Jika diketahui |x₁ - x₂| = 3, tentukan nilai k!',
-    mathPrompt: 'x^2 - 7x + k = 0, \\quad |x_1 - x_2| = 3',
+    categoryTag: 'Stimulus Numerasi: Relasi Selisih Akar',
+    stimulus: {
+      tag: 'STIMULUS NUMERASI: RISET AERODINAMIKA ROKET AIR',
+      title: 'Uji Durasi Ketinggian Lontaran Vertikal',
+      text: 'Dalam uji balistik vertikal di lapangan terbuka, waktu tempuh t (detik) wahana uji memenuhi persamaan gerak t² - 7t + k = 0, dengan k menyatakan parameter hambatan udara. Alat pencatat optik merekam wahana melintasi garis batas observasi pada dua waktu berbeda, t₁ dan t₂, dengan selisih waktu terukur sebesar |t₁ - t₂| = 3 detik.',
+      source: 'Data Observasi Sensor Optik Balistik Sekolah',
+    },
+    question: 'Berdasarkan informasi di atas, tentukan nilai koefisien parameter hambatan k yang memenuhi persamaan tersebut!',
+    mathPrompt: 't^2 - 7t + k = 0, \\quad |t_1 - t_2| = 3\\text{ detik}',
     type: 'text',
     correctAnswer: '10',
     acceptedAnswers: ['10', 'k = 10', 'k=10', '10.0'],
-    hint: '(x₁ - x₂)² = (x₁ + x₂)² - 4x₁x₂.',
-    explanation: '(3)² = (7)² - 4k ⇒ 9 = 49 - 4k ⇒ 4k = 40 ⇒ k = 10.',
+    hint: '(t₁ - t₂)² = (t₁ + t₂)² - 4t₁t₂. Substitusikan t₁ + t₂ = 7 dan t₁t₂ = k ke dalam hubungan selisih kuadrat.',
+    explanation:
+      'Berdasarkan teorema Vieta:\nt₁ + t₂ = 7 dan t₁t₂ = k.\nHubungan selisih akar:\n(t₁ - t₂)² = (t₁ + t₂)² - 4t₁t₂\n(3)² = (7)² - 4k\n9 = 49 - 4k\n4k = 49 - 9 = 40\nk = 10.\nJadi, nilai parameter k adalah 10.',
   },
   {
     id: 'pb-8',
@@ -599,13 +658,26 @@ export const paketBData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Standar SNBT',
-    categoryTag: 'Aplikasi Geometri Tangga',
-    question: 'Sebuah tangga yang panjangnya 10 m disandarkan ke dinding. Jika tinggi dinding lebih panjang 2 m dibanding dengan jarak kaki tangga ke dinding, tentukan tinggi dinding tersebut (dalam meter)!',
-    mathPrompt: '\\text{Tangga } = 10\\text{ m}, \\quad t = x + 2',
+    categoryTag: 'Stimulus Geometri & K3: Teorema Pythagoras',
+    stimulus: {
+      tag: 'STIMULUS LITERASI & NUMERASI: KESELAMATAN KONSTRUKSI (K3)',
+      title: 'Inspeksi Fasade Bangunan & Penyangga Tangga',
+      text: 'Seorang petugas inspeksi fasade gedung menggunakan tangga aluminium sepanjang 10 meter yang disandarkan pada dinding tembok vertikal. Berdasarkan pengukuran keselamatan lapangan, ketinggian dinding yang dicapai ujung tangga (t) terukur 2 meter lebih panjang dibanding jarak tumpuan kaki tangga ke dasar dinding (x). Posisi tangga membentuk segitiga siku-siku sesuai ilustrasi diagram teknik berikut.',
+      source: 'Manual K3 Pemeliharaan Bangunan Bertingkat',
+    },
+    diagramType: 'tangga',
+    diagramConfig: {
+      panjangTangga: '10 m',
+      tinggiLabel: 't = x + 2 m',
+      jarakLabel: 'x m',
+    },
+    question: 'Berdasarkan diagram teknik dan kondisi di atas, tentukan tinggi dinding yang dapat dijangkau oleh tangga tersebut (dalam satuan meter)!',
+    mathPrompt: 'x^2 + (x + 2)^2 = 10^2, \\quad t = x + 2',
     type: 'text',
     correctAnswer: '8',
-    acceptedAnswers: ['8', '8 m', '8m', '8 meter', '8.0'],
-    hint: 'x² + (x + 2)² = 10² ⇒ 2x² + 4x + 4 = 100.',
-    explanation: '2x² + 4x - 96 = 0 ⇒ x² + 2x - 48 = 0 ⇒ (x + 8)(x - 6) = 0 ⇒ x = 6 m. Tinggi dinding = 6 + 2 = 8 meter.',
+    acceptedAnswers: ['8', '8 m', '8m', '8 meter', 't = 8', 't=8', '8.0'],
+    hint: 'x² + (x + 2)² = 10² ⇒ 2x² + 4x + 4 = 100. Sederhanakan persamaan kuadrat, cari x positif, lalu hitung t = x + 2.',
+    explanation:
+      'Berdasarkan dalil Pythagoras:\nx² + (x + 2)² = 10²\nx² + (x² + 4x + 4) = 100\n2x² + 4x - 96 = 0\nBagi kedua ruas dengan 2:\nx² + 2x - 48 = 0\nFaktorkan:\n(x + 8)(x - 6) = 0\nKarena jarak fisik harus bernilai positif, maka x = 6 meter.\nTinggi dinding yang dicapai:\nt = x + 2 = 6 + 2 = 8 meter.',
   },
 ];
