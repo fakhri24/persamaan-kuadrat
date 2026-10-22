@@ -466,6 +466,7 @@ export const EvaluationSection: React.FC = () => {
                             type="radio"
                             name={`eval-opt-${q.id}`}
                             value={opt.key}
+                            aria-label={`Pilihan ${opt.key} untuk evaluasi nomor ${q.id}`}
                             checked={userAns === opt.key}
                             onChange={() =>
                               setAnswers((prev) => ({ ...prev, [q.id]: opt.key }))
@@ -486,8 +487,9 @@ export const EvaluationSection: React.FC = () => {
                         onChange={(e) =>
                           setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
                         }
+                        aria-label={`Jawaban evaluasi nomor ${q.id}`}
                         placeholder="Ketik jawabanmu di sini..."
-                        className="w-full max-w-xs sm:max-w-sm px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 font-mono"
+                        className="w-full max-w-xs sm:max-w-sm px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 font-mono min-h-[44px]"
                       />
                     </div>
                   )}

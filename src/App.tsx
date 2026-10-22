@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MathView } from './components/MathView';
 import { CalloutBox } from './components/CalloutBox';
 import { PetaKonsep } from './components/PetaKonsep';
@@ -16,15 +16,47 @@ import {
   latihan54Data,
   latihan55Data,
 } from './data/exercisesData';
-import { BookOpen, Compass, FileText, Trophy, Sparkles } from 'lucide-react';
+import { BookOpen, Compass, FileText, Trophy, Sparkles, Sun, Moon, List } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'materi' | 'roadmap' | 'latihan' | 'uh'>('materi');
+  const [isOpenMobileToC, setIsOpenMobileToC] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    if (
+      localStorage.theme === 'dark' ||
+      (!('theme' in localStorage) &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
+      document.documentElement.classList.add('dark');
+      setIsDark(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      setIsDark(false);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+      setIsDark(true);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-200 font-sans">
-      {/* Floating Table of Contents and Navigation */}
-      <TableOfContents showSidebar={activeTab === 'materi'} />
+      {/* Floating Table of Contents Sidebar & Drawer */}
+      <TableOfContents
+        showSidebar={activeTab === 'materi'}
+        isOpenMobile={isOpenMobileToC}
+        onCloseMobile={() => setIsOpenMobileToC(false)}
+      />
 
       {/* Main Container */}
       <main
@@ -33,66 +65,92 @@ export const App: React.FC = () => {
         }`}
       >
         {/* Navigation Tabs Bar */}
-        <header className="mb-8 p-1.5 bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-md flex flex-wrap items-center gap-1.5 sticky top-4 z-20">
-          <button
-            onClick={() => {
-              setActiveTab('materi');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'materi'
-                ? 'bg-indigo-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Materi Supermath</span>
-          </button>
+        <header className="mb-8 p-1.5 sm:p-2 bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md backdrop-blur-md sticky top-4 z-20 transition-all">
+          <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+            <nav className="flex-1 flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+              <button
+                onClick={() => {
+                  setActiveTab('materi');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  activeTab === 'materi'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Materi Supermath</span>
+              </button>
 
-          <button
-            onClick={() => {
-              setActiveTab('roadmap');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'roadmap'
-                ? 'bg-indigo-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Compass className="w-4 h-4" />
-            <span>Alur 8 Pertemuan</span>
-          </button>
+              <button
+                onClick={() => {
+                  setActiveTab('roadmap');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  activeTab === 'roadmap'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Compass className="w-4 h-4" />
+                <span>Alur 8 Pertemuan</span>
+              </button>
 
-          <button
-            onClick={() => {
-              setActiveTab('latihan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'latihan'
-                ? 'bg-indigo-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Paket A & B</span>
-          </button>
+              <button
+                onClick={() => {
+                  setActiveTab('latihan');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  activeTab === 'latihan'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                <span>Paket A & B</span>
+              </button>
 
-          <button
-            onClick={() => {
-              setActiveTab('uh');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'uh'
-                ? 'bg-indigo-600 text-white shadow-md ring-2 ring-amber-400'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <span>Ulangan Harian</span>
-          </button>
+              <button
+                onClick={() => {
+                  setActiveTab('uh');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  activeTab === 'uh'
+                    ? 'bg-indigo-600 text-white shadow-md ring-2 ring-amber-400'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Trophy className="w-4 h-4 text-amber-400" />
+                <span>Ulangan Harian</span>
+              </button>
+            </nav>
+
+            {/* Quick Utility Tools: Theme Toggle & ToC Drawer Button on mobile */}
+            <div className="flex items-center gap-1.5 ml-auto shrink-0">
+              {activeTab === 'materi' && (
+                <button
+                  onClick={() => setIsOpenMobileToC(true)}
+                  aria-label="Buka Daftar Isi Materi"
+                  className="xl:hidden min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 flex items-center justify-center transition-all shadow-sm active:scale-95"
+                  title="Daftar Isi"
+                >
+                  <List className="w-5 h-5" />
+                </button>
+              )}
+              <button
+                onClick={toggleTheme}
+                aria-label="Ganti Mode Gelap atau Terang"
+                className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm active:scale-95"
+                title="Ganti Tema"
+              >
+                {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-600" />}
+              </button>
+            </div>
+          </div>
         </header>
 
         {/* Tab 1: Materi Supermath Asli */}
@@ -389,7 +447,10 @@ export const App: React.FC = () => {
                   <MathView block math="x^2 - 6x = 1 \implies (x - 3)^2 - 3^2 = 1 \implies (x - 3)^2 = 9 + 1 = 10" />
                   <MathView block math="x - 3 = \pm\sqrt{10} \implies x = 3 \pm \sqrt{10}" />
                   <p><strong>Cara 2: Rumus Alkhawarizmi</strong></p>
-                  <MathView block math="x_{1,2} = \frac{-(-6) \pm \sqrt{(-6)^2 - 4(1)(-1)}}{2(1)} = \frac{6 \pm \sqrt{40}}{2} = \frac{6 \pm 2\sqrt{10}}{2} = 3 \pm \sqrt{10}" />
+                  <div className="space-y-1.5 my-2">
+                    <MathView block math="x_{1,2} = \frac{-(-6) \pm \sqrt{(-6)^2 - 4(1)(-1)}}{2(1)} = \frac{6 \pm \sqrt{40}}{2}" />
+                    <MathView block math="= \frac{6 \pm 2\sqrt{10}}{2} = 3 \pm \sqrt{10}" />
+                  </div>
                 </div>
               </div>
 
@@ -403,7 +464,10 @@ export const App: React.FC = () => {
                   <MathView block math="(x + 2)^2 - 4 = -\frac{3}{2} \implies (x + 2)^2 = \frac{5}{2}" />
                   <MathView block math="x + 2 = \pm\sqrt{\frac{5}{2}} = \pm\frac{\sqrt{10}}{2} \implies x = -2 \pm \frac{1}{2}\sqrt{10}" />
                   <p><strong>Cara 2: Rumus Alkhawarizmi</strong></p>
-                  <MathView block math="x_{1,2} = \frac{-8 \pm \sqrt{8^2 - 4(2)(3)}}{2(2)} = \frac{-8 \pm \sqrt{40}}{4} = \frac{-8 \pm 2\sqrt{10}}{4} = -2 \pm \frac{1}{2}\sqrt{10}" />
+                  <div className="space-y-1.5 my-2">
+                    <MathView block math="x_{1,2} = \frac{-8 \pm \sqrt{8^2 - 4(2)(3)}}{2(2)} = \frac{-8 \pm \sqrt{40}}{4}" />
+                    <MathView block math="= \frac{-8 \pm 2\sqrt{10}}{4} = -2 \pm \frac{1}{2}\sqrt{10}" />
+                  </div>
                 </div>
               </div>
 
@@ -525,7 +589,10 @@ export const App: React.FC = () => {
                 <MathView block math="(m + 2)x^2 + 2(m - 2)x + m = 0 \implies a = m + 2; \quad b = 2(m - 2); \quad c = m" />
                 <p>Syarat dua akar kembar: <MathView math="D = 0 \implies b^2 - 4ac = 0" /></p>
                 <MathView block math="(2(m - 2))^2 - 4(m + 2)(m) = 0" />
-                <MathView block math="4m^2 - 16m + 16 - 4m^2 - 8m = 0 \implies -24m + 16 = 0 \implies 24m = 16" />
+                <div className="space-y-1 my-2">
+                  <MathView block math="4m^2 - 16m + 16 - 4m^2 - 8m = 0" />
+                  <MathView block math="\implies -24m + 16 = 0 \implies 24m = 16" />
+                </div>
                 <p className="font-bold text-indigo-600">Jadi, <MathView math="m = \frac{16}{24} = \frac{2}{3}" /></p>
               </div>
             </div>
@@ -539,7 +606,10 @@ export const App: React.FC = () => {
                 <p><strong>Pembahasan:</strong></p>
                 <p>Persamaan kuadrat tidak memiliki akar riil jika <MathView math="D < 0" />, sehingga:</p>
                 <MathView block math="b^2 - 4ac < 0 \implies (-4)^2 - 4(2)(2p - 1) < 0" />
-                <MathView block math="16 - 16p + 8 < 0 \implies 24 - 16p < 0 \implies -16p < -24 \implies p > \frac{24}{16} \implies p > \frac{3}{2}" />
+                <div className="space-y-1 my-2">
+                  <MathView block math="16 - 16p + 8 < 0 \implies 24 - 16p < 0" />
+                  <MathView block math="\implies -16p < -24 \implies p > \frac{24}{16} \implies p > \frac{3}{2}" />
+                </div>
               </div>
             </div>
           </div>
@@ -599,7 +669,10 @@ export const App: React.FC = () => {
               <div className="space-y-2 text-slate-700 dark:text-slate-300">
                 <p><strong>Pembahasan:</strong></p>
                 <p><MathView math="\alpha" /> dan <MathView math="\beta" /> adalah akar-akar persamaan kuadrat <MathView math="5x^2 - 3x + 25 = 0" />, maka berlaku:</p>
-                <MathView block math="\alpha + \beta = -\frac{b}{a} = -\frac{-3}{5} = \frac{3}{5} \\quad \\text{dan} \\quad \alpha\beta = \frac{c}{a} = \frac{25}{5} = 5" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2">
+                  <MathView block math="\alpha + \beta = -\frac{b}{a} = -\frac{-3}{5} = \frac{3}{5}" />
+                  <MathView block math="\alpha\beta = \frac{c}{a} = \frac{25}{5} = 5" />
+                </div>
                 <p>Sehingga:</p>
                 <MathView block math="\alpha^2\beta + \alpha\beta^2 = (\alpha + \beta)\alpha\beta = \frac{3}{5}(5) = 3" />
               </div>
@@ -612,7 +685,10 @@ export const App: React.FC = () => {
               </p>
               <div className="space-y-2 text-slate-700 dark:text-slate-300">
                 <p><strong>Pembahasan:</strong></p>
-                <MathView block math="x_1 + x_2 = -\frac{b}{a} = -\frac{4}{3} \\quad \\text{dan} \\quad x_1 \cdot x_2 = \frac{c}{a} = \frac{-1}{3}" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2">
+                  <MathView block math="x_1 + x_2 = -\frac{b}{a} = -\frac{4}{3}" />
+                  <MathView block math="x_1 \cdot x_2 = \frac{c}{a} = \frac{-1}{3}" />
+                </div>
                 <MathView block math="\frac{1}{x_1} + \frac{1}{x_2} = \frac{x_1 + x_2}{x_1 \cdot x_2} = \frac{-\frac{4}{3}}{-\frac{1}{3}} = -\frac{4}{3} \cdot \frac{3}{-1} = 4" />
               </div>
             </div>
@@ -689,7 +765,10 @@ export const App: React.FC = () => {
               </p>
               <div className="space-y-2 text-slate-700 dark:text-slate-300">
                 <p><strong>Pembahasan:</strong></p>
-                <MathView block math="x_1 + x_2 = -\frac{-5}{1} = 5 \\quad \\text{dan} \\quad x_1 \cdot x_2 = \frac{10}{1} = 10" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2">
+                  <MathView block math="x_1 + x_2 = -\frac{-5}{1} = 5" />
+                  <MathView block math="x_1 \cdot x_2 = \frac{10}{1} = 10" />
+                </div>
                 <p>Akar baru: <MathView math="\alpha = 3x_1" /> dan <MathView math="\beta = 3x_2" />:</p>
                 <MathView block math="x^2 - (3x_1 + 3x_2)x + (3x_1)(3x_2) = 0" />
                 <MathView block math="x^2 - 3(x_1 + x_2)x + 9x_1 x_2 = 0 \implies x^2 - 3(5)x + 9(10) = 0" />
@@ -704,7 +783,10 @@ export const App: React.FC = () => {
               </p>
               <div className="space-y-2 text-slate-700 dark:text-slate-300">
                 <p><strong>Pembahasan:</strong></p>
-                <MathView block math="\alpha + \beta = -\frac{2}{1} = -2 \\quad \\text{dan} \\quad \alpha\beta = \frac{3}{1} = 3" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2">
+                  <MathView block math="\alpha + \beta = -\frac{2}{1} = -2" />
+                  <MathView block math="\alpha\beta = \frac{3}{1} = 3" />
+                </div>
                 <p>Jumlah baru:</p>
                 <MathView block math="x_1 + x_2 = (\alpha - 2) + (\beta - 2) = \alpha + \beta - 4 = -2 - 4 = -6" />
                 <p>Hasil kali baru:</p>

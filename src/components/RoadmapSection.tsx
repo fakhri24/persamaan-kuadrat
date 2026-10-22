@@ -47,7 +47,7 @@ export const RoadmapSection: React.FC = () => {
             Peta Alur Pembelajaran (8 Pertemuan)
           </h2>
           <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
-            Struktur alur materi berjenjang (*scaffolding*) dari pemahaman konsep dasar untuk siswa berkemampuan lambat-sedang, hingga pencapaian standar **TKA (Tes Kemampuan Akademik)** dan **SNBT**. Setiap pertemuan dilengkapi pembagian jelas antara **Main Quest** (wajib) dan **Side Quest** (pengayaan cepat).
+            Struktur alur materi berjenjang (<em>scaffolding</em>) dari pemahaman konsep dasar untuk siswa berkemampuan lambat-sedang, hingga pencapaian standar <strong className="text-white font-bold">TKA (Tes Kemampuan Akademik)</strong> dan <strong className="text-white font-bold">SNBT</strong>. Setiap pertemuan dilengkapi pembagian jelas antara <strong className="text-white font-bold">Main Quest</strong> (wajib) dan <strong className="text-white font-bold">Side Quest</strong> (pengayaan cepat).
           </p>
         </div>
 

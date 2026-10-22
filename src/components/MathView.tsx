@@ -25,7 +25,10 @@ export const MathView: React.FC<MathViewProps> = ({ math, block = false, classNa
   if (block) {
     return (
       <div
-        className={`my-2 w-full max-w-full overflow-x-auto py-1 text-center font-math scrollbar-thin ${className}`}
+        tabIndex={0}
+        role="region"
+        aria-label="Formula Matematika"
+        className={`my-2 w-full max-w-full overflow-x-auto py-1.5 px-2 text-center font-math scrollbar-thin touch-pan-x rounded-lg transition-all focus:outline-none focus:ring-1 focus:ring-indigo-300/50 ${className}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );

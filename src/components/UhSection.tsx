@@ -72,6 +72,15 @@ export const UhSection: React.FC = () => {
     setOpenExplanations((prev) => ({ ...prev, [id]: false }));
   };
 
+  const handleResetAll = () => {
+    if (window.confirm('Apakah kamu ingin mengosongkan semua jawaban dan mereset nilai Ulangan Harian ini?')) {
+      setCheckedState({});
+      setAnswers({});
+      setSelectedOptions({});
+      setOpenExplanations({});
+    }
+  };
+
   // Calculate scores
   const wajibQuestions = uhQuestionsData.filter((q) => !q.isOptional);
   const opsionalQuestions = uhQuestionsData.filter((q) => q.isOptional);
@@ -182,6 +191,19 @@ export const UhSection: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Reset All Button */}
+        {(totalScore > 0 || Object.keys(checkedState).length > 0) && (
+          <div className="mt-4 pt-4 border-t border-indigo-800/40 flex justify-end">
+            <button
+              onClick={handleResetAll}
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/20 transition-all active:scale-95 min-h-[44px]"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Reset Jawaban Ulangan</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Rules Notice */}
@@ -303,6 +325,7 @@ export const UhSection: React.FC = () => {
                         type="radio"
                         name={`uh-opt-${q.id}`}
                         value={opt.key}
+                        aria-label={`Pilihan ${opt.key} untuk soal nomor ${q.number}`}
                         checked={selectedOptions[q.id] === opt.key}
                         onChange={() =>
                           setSelectedOptions((prev) => ({ ...prev, [q.id]: opt.key }))
@@ -326,8 +349,9 @@ export const UhSection: React.FC = () => {
                       setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
                     }
                     onKeyDown={(e) => e.key === 'Enter' && handleCheckQuestion(q)}
+                    aria-label={`Ketik jawaban akhir untuk soal nomor ${q.number}`}
                     placeholder="Tuliskan jawaban akhirmu di sini..."
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
                   />
                 </div>
               )}
@@ -336,7 +360,7 @@ export const UhSection: React.FC = () => {
               <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => handleCheckQuestion(q)}
-                  className={`px-4 py-2 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition-all active:scale-95 ${
+                  className={`min-h-[44px] px-5 py-2.5 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition-all active:scale-95 flex items-center justify-center ${
                     q.isOptional
                       ? 'bg-amber-600 hover:bg-amber-700'
                       : 'bg-indigo-600 hover:bg-indigo-700'
@@ -349,7 +373,7 @@ export const UhSection: React.FC = () => {
                   onClick={() =>
                     setOpenExplanations((prev) => ({ ...prev, [q.id]: !isExpOpen }))
                   }
-                  className="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ml-auto"
+                  className="min-h-[44px] px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ml-auto"
                 >
                   {isExpOpen ? 'Tutup Pembahasan' : 'Buka Pembahasan'}
                   {isExpOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -358,8 +382,9 @@ export const UhSection: React.FC = () => {
                 {isAnswered && (
                   <button
                     onClick={() => handleResetQuestion(q.id)}
+                    aria-label={`Ulangi soal nomor ${q.number}`}
                     title="Ulangi Soal"
-                    className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg transition-colors"
+                    className="min-h-[44px] min-w-[44px] p-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
                   >
                     <RefreshCw className="w-4 h-4" />
                   </button>
