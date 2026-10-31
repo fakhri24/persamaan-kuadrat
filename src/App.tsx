@@ -210,7 +210,7 @@ export const App: React.FC = () => {
           {/* Hero Banner with Real HD Courtyard Garden Image */}
           <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 group border border-slate-200 dark:border-slate-800">
             <img
-              src="/images/courtyard-garden.jpg"
+              src="./images/courtyard-garden.jpg"
               alt="Halaman dan Taman Rumah Real HD"
               className="w-full h-72 sm:h-96 object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
             />
