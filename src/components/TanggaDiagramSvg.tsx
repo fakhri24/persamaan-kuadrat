@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 export interface TanggaDiagramProps {
   panjangTangga: string; // e.g. "13 m"
@@ -13,6 +13,8 @@ export const TanggaDiagramSvg: React.FC<TanggaDiagramProps> = ({
   jarakLabel,
   className = '',
 }) => {
+  const titleId = useId();
+
   // Ladder geometry
   // Top of ladder at wall: (130, 55)
   // Base of wall on ground: (130, 235)
@@ -49,7 +51,16 @@ export const TanggaDiagramSvg: React.FC<TanggaDiagramProps> = ({
           viewBox="0 0 460 290"
           className="w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-labelledby={titleId}
         >
+          <title id={titleId}>
+            Skema tangga: panjang {panjangTangga}, tinggi {tinggiLabel}, jarak {jarakLabel}
+          </title>
+          <desc>
+            Segitiga siku-siku antara dinding vertikal, lantai datar, dan tangga yang bersandar.
+            Skema tidak berskala.
+          </desc>
           <defs>
             {/* Pattern for wall brick texture */}
             <pattern id="brickPattern" width="20" height="12" patternUnits="userSpaceOnUse">
@@ -280,7 +291,8 @@ export const TanggaDiagramSvg: React.FC<TanggaDiagramProps> = ({
       </div>
 
       <div className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 text-center italic">
-        Ilustrasi Skematis: Segitiga siku-siku antara tinggi tembok jangkauan, jarak tumpuan kaki tangga, dan panjang tangga bersandar.
+        Ilustrasi skematis (tidak berskala): segitiga siku-siku antara tinggi tembok jangkauan,
+        jarak tumpuan kaki tangga, dan panjang tangga bersandar.
       </div>
     </div>
   );

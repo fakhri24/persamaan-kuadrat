@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { MathView } from './MathView';
+import { MathText } from './MathText';
+import { isAnswerCorrect } from '../lib/answerCheck';
 import { CheckCircle2, XCircle, ChevronDown, ChevronUp, HelpCircle, RefreshCw } from 'lucide-react';
 
 export interface ExerciseProps {
@@ -35,9 +37,6 @@ export const ExerciseItem: React.FC<ExerciseProps> = ({
   const [isCorrect, setIsCorrect] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
 
-  const normalize = (str: string) =>
-    str.trim().toLowerCase().replace(/\s+/g, '').replace(/,/g, '.');
-
   const handleCheck = () => {
     let correct = false;
     if (type === 'options' && selectedOption) {
@@ -47,9 +46,7 @@ export const ExerciseItem: React.FC<ExerciseProps> = ({
         (item) => (checkedBoxes[item.id] || false) === item.isCorrect
       );
     } else {
-      const cleanUser = normalize(userInput);
-      const targets = [correctAnswer || '', ...acceptedAnswers].map(normalize);
-      correct = targets.some((t) => t === cleanUser);
+      correct = isAnswerCorrect(userInput, correctAnswer || '', acceptedAnswers);
     }
     setIsCorrect(correct);
     setIsAnswered(true);
@@ -104,14 +101,21 @@ export const ExerciseItem: React.FC<ExerciseProps> = ({
                     type="radio"
                     name={`opt-${numberLabel}`}
                     value={opt.key}
-                    aria-label={`Pilihan ${opt.key} untuk latihan ${numberLabel}`}
+                    aria-label={`Pilihan ${opt.key}: ${typeof opt.text === 'string' && opt.text ? opt.text : opt.math || numberLabel}`}
                     checked={selectedOption === opt.key}
                     onChange={() => setSelectedOption(opt.key)}
-                    className="w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500"
+                    className="w-4 h-4 accent-indigo-600 dark:accent-indigo-500 focus:ring-indigo-500"
                   />
                   <span className="font-bold">{opt.key}.</span>
-                  <span>{opt.text}</span>
-                  {opt.math && <MathView math={opt.math} className="ml-1" />}
+                  <div className="flex-1">
+                    {opt.math ? (
+                      <MathView math={opt.math} className="mx-1" />
+                    ) : typeof opt.text === 'string' ? (
+                      <MathText text={opt.text} />
+                    ) : (
+                      opt.text
+                    )}
+                  </div>
                 </label>
               ))}
             </div>
@@ -139,7 +143,7 @@ export const ExerciseItem: React.FC<ExerciseProps> = ({
                         [item.id]: e.target.checked,
                       }))
                     }
-                    className="mt-0.5 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                    className="mt-0.5 w-4 h-4 accent-indigo-600 dark:accent-indigo-500 rounded focus:ring-indigo-500"
                   />
                   <span>
                     {item.text}
@@ -160,7 +164,7 @@ export const ExerciseItem: React.FC<ExerciseProps> = ({
                 onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
                 aria-label={`Jawaban untuk latihan nomor ${numberLabel}`}
                 placeholder="Ketik jawaban kamu di sini..."
-                className="w-full max-w-xs sm:max-w-sm px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 min-h-[44px]"
+                className="w-full max-w-xs sm:max-w-sm px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 min-h-[44px]"
               />
             </div>
           )}
@@ -198,6 +202,8 @@ export const ExerciseItem: React.FC<ExerciseProps> = ({
           {/* Result Alert */}
           {isAnswered && (
             <div
+              role="status"
+              aria-live="polite"
               className={`mt-3 p-3 rounded-lg flex items-center gap-2 text-sm ${
                 isCorrect
                   ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'

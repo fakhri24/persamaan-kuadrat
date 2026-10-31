@@ -23,6 +23,35 @@ export const App: React.FC = () => {
   const [isOpenMobileToC, setIsOpenMobileToC] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
+  const tabOrder: Array<'materi' | 'roadmap' | 'latihan' | 'uh'> = [
+    'materi',
+    'roadmap',
+    'latihan',
+    'uh',
+  ];
+
+  const switchTab = (tab: 'materi' | 'roadmap' | 'latihan' | 'uh') => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    let nextIndex: number | null = null;
+
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabOrder.length;
+    else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabOrder.length) % tabOrder.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = tabOrder.length - 1;
+
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    const nextTab = tabOrder[nextIndex];
+    switchTab(nextTab);
+    document.getElementById(`tab-${nextTab}`)?.focus();
+  };
+
   useEffect(() => {
     if (
       localStorage.theme === 'dark' ||
@@ -56,6 +85,7 @@ export const App: React.FC = () => {
         showSidebar={activeTab === 'materi'}
         isOpenMobile={isOpenMobileToC}
         onCloseMobile={() => setIsOpenMobileToC(false)}
+        showScrollTopButton={activeTab === 'materi' || activeTab === 'roadmap'}
       />
 
       {/* Main Container */}
@@ -66,14 +96,20 @@ export const App: React.FC = () => {
       >
         {/* Navigation Tabs Bar */}
         <header className="mb-8 p-1.5 sm:p-2 bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md backdrop-blur-md sticky top-4 z-20 transition-all">
-          <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-            <nav className="flex-1 flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+          <div className="flex items-center justify-between gap-2">
+            <nav
+              role="tablist"
+              aria-label="Navigasi bab"
+              className="flex-1 flex flex-nowrap items-center gap-1.5 w-full min-w-0 overflow-x-auto scrollbar-none"
+            >
               <button
-                onClick={() => {
-                  setActiveTab('materi');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                id="tab-materi"
+                role="tab"
+                aria-selected={activeTab === 'materi'}
+                tabIndex={activeTab === 'materi' ? 0 : -1}
+                onClick={() => switchTab('materi')}
+                onKeyDown={handleTabKeyDown}
+                className={`flex-1 shrink-0 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   activeTab === 'materi'
                     ? 'bg-indigo-600 text-white shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -84,11 +120,13 @@ export const App: React.FC = () => {
               </button>
 
               <button
-                onClick={() => {
-                  setActiveTab('roadmap');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                id="tab-roadmap"
+                role="tab"
+                aria-selected={activeTab === 'roadmap'}
+                tabIndex={activeTab === 'roadmap' ? 0 : -1}
+                onClick={() => switchTab('roadmap')}
+                onKeyDown={handleTabKeyDown}
+                className={`flex-1 shrink-0 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   activeTab === 'roadmap'
                     ? 'bg-indigo-600 text-white shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -99,11 +137,13 @@ export const App: React.FC = () => {
               </button>
 
               <button
-                onClick={() => {
-                  setActiveTab('latihan');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                id="tab-latihan"
+                role="tab"
+                aria-selected={activeTab === 'latihan'}
+                tabIndex={activeTab === 'latihan' ? 0 : -1}
+                onClick={() => switchTab('latihan')}
+                onKeyDown={handleTabKeyDown}
+                className={`flex-1 shrink-0 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   activeTab === 'latihan'
                     ? 'bg-indigo-600 text-white shadow-md'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -114,11 +154,13 @@ export const App: React.FC = () => {
               </button>
 
               <button
-                onClick={() => {
-                  setActiveTab('uh');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`flex-1 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                id="tab-uh"
+                role="tab"
+                aria-selected={activeTab === 'uh'}
+                tabIndex={activeTab === 'uh' ? 0 : -1}
+                onClick={() => switchTab('uh')}
+                onKeyDown={handleTabKeyDown}
+                className={`flex-1 shrink-0 min-w-[120px] min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                   activeTab === 'uh'
                     ? 'bg-indigo-600 text-white shadow-md ring-2 ring-amber-400'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -155,7 +197,12 @@ export const App: React.FC = () => {
 
         {/* Tab 1: Materi Supermath Asli */}
         {activeTab === 'materi' && (
-          <div className="animate-fadeIn">
+          <div
+            className="animate-fadeIn"
+            role="tabpanel"
+            id="panel-materi"
+            aria-labelledby="tab-materi"
+          >
             {/* ==========================================================================
                 HERO SECTION & PENGANTAR (Halaman 1)
                 ========================================================================== */}
@@ -979,13 +1026,25 @@ export const App: React.FC = () => {
     )}
 
     {/* Tab 2: Roadmap 8 Pertemuan */}
-    {activeTab === 'roadmap' && <RoadmapSection />}
+    {activeTab === 'roadmap' && (
+      <div role="tabpanel" id="panel-roadmap" aria-labelledby="tab-roadmap">
+        <RoadmapSection />
+      </div>
+    )}
 
     {/* Tab 3: Paket A & B */}
-    {activeTab === 'latihan' && <PaketLatihanSection />}
+    {activeTab === 'latihan' && (
+      <div role="tabpanel" id="panel-latihan" aria-labelledby="tab-latihan">
+        <PaketLatihanSection />
+      </div>
+    )}
 
     {/* Tab 4: Ulangan Harian (10 Wajib + 2 Opsional) */}
-    {activeTab === 'uh' && <UhSection />}
+    {activeTab === 'uh' && (
+      <div role="tabpanel" id="panel-uh" aria-labelledby="tab-uh">
+        <UhSection />
+      </div>
+    )}
 
         {/* Footer */}
         <footer className="pt-8 pb-16 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400">

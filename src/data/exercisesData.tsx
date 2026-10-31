@@ -265,8 +265,8 @@ export const latihan51Data: ExerciseProps[] = [
     question: 'Jika',
     mathQuestion: '\\frac{4(2x-3)}{x-2} = x + \\frac{9}{x-2}, \\text{ maka nilai } x \\text{ adalah...}',
     type: 'text',
-    correctAnswer: '7',
-    acceptedAnswers: ['7', 'x = 7'],
+    correctAnswer: '3 atau 7',
+    acceptedAnswers: ['3 atau 7', '7 atau 3', '3, 7', '7, 3', 'x = 3 atau x = 7', '3 dan 7'],
     explanation: (
       <div>
         <p>Kalikan kedua ruas dengan <MathView math="(x - 2)" /> dengan syarat <MathView math="x \neq 2" />:</p>

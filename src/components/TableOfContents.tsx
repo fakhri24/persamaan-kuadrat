@@ -28,12 +28,14 @@ interface TableOfContentsProps {
   showSidebar?: boolean;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  showScrollTopButton?: boolean;
 }
 
 export const TableOfContents: React.FC<TableOfContentsProps> = ({
   showSidebar = true,
   isOpenMobile = false,
   onCloseMobile,
+  showScrollTopButton = true,
 }) => {
   const [activeId, setActiveId] = useState<string>('pengantar');
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -148,7 +150,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
       )}
 
       {/* Quick Scroll To Top Button (shown only when scrolled) */}
-      {showScrollTop && (
+      {showScrollTop && showScrollTopButton && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="Kembali ke Paling Atas"

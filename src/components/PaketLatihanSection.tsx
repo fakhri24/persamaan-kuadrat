@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { paketAData, paketBData, UHQuestion } from '../data/uhExerciseData';
 import { MathView } from './MathView';
+import { MathText } from './MathText';
 import { TanggaDiagramSvg } from './TanggaDiagramSvg';
+import { isAnswerCorrect } from '../lib/answerCheck';
 import {
   Users,
   Home,
@@ -15,49 +17,54 @@ import {
   BookOpen,
 } from 'lucide-react';
 
+interface AnswerState {
+  input: string;
+  option: string | null;
+  answered: boolean;
+  correct: boolean;
+}
+
+const EMPTY_ANSWER: AnswerState = {
+  input: '',
+  option: null,
+  answered: false,
+  correct: false,
+};
+
 interface QuestionCardProps {
   question: UHQuestion;
   mode: 'guided' | 'independent';
-  onAnswerChecked?: (id: string, isCorrect: boolean) => void;
+  answer: AnswerState;
+  onChange: (next: AnswerState) => void;
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChecked }) => {
-  const [userInput, setUserInput] = useState('');
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, answer, onChange }) => {
   const [showHint, setShowHint] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [emptyWarning, setEmptyWarning] = useState(false);
 
-  const normalize = (str: string) =>
-    str.trim().toLowerCase().replace(/\s+/g, '').replace(/,/g, '.');
+  const isChoice = question.type === 'choice';
+  const canCheck = isChoice ? Boolean(answer.option) : answer.input.trim().length > 0;
 
   const handleCheck = () => {
-    let correct = false;
-    if (question.type === 'choice' && selectedOption) {
-      correct = selectedOption.toUpperCase() === question.correctAnswer.toUpperCase();
-    } else {
-      const cleanUser = normalize(userInput);
-      const targets = [question.correctAnswer, ...question.acceptedAnswers].map(normalize);
-      correct = targets.some((t) => t === cleanUser);
+    if (!canCheck) {
+      setEmptyWarning(true);
+      return;
     }
-    setIsCorrect(correct);
-    setIsAnswered(true);
-    if (onAnswerChecked) {
-      onAnswerChecked(question.id, correct);
-    }
+
+    const correct = isChoice
+      ? (answer.option || '').toUpperCase() === question.correctAnswer.toUpperCase()
+      : isAnswerCorrect(answer.input, question.correctAnswer, question.acceptedAnswers);
+
+    setEmptyWarning(false);
+    onChange({ ...answer, answered: true, correct });
   };
 
   const handleReset = () => {
-    setUserInput('');
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setIsCorrect(false);
+    setEmptyWarning(false);
     setShowHint(false);
     setShowExplanation(false);
-    if (onAnswerChecked) {
-      onAnswerChecked(question.id, false);
-    }
+    onChange(EMPTY_ANSWER);
   };
 
   return (
@@ -94,12 +101,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
               </span>
             )}
           </div>
-          <h4 className="font-bold text-sm sm:text-base text-indigo-950 dark:text-indigo-100 mb-1.5">
+          <h3 className="font-bold text-sm sm:text-base text-indigo-950 dark:text-indigo-100 mb-1.5">
             {question.stimulus.title}
-          </h4>
-          <p className="text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            {question.stimulus.text}
-          </p>
+          </h3>
+          <MathText
+            text={question.stimulus.text}
+            className="text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300"
+          />
         </div>
       )}
 
@@ -113,9 +121,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
       )}
 
       {/* Question Prompt */}
-      <div className="text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-medium">
-        {question.question}
-      </div>
+      <MathText
+        text={question.question}
+        className="text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-medium"
+      />
 
       {/* Formula Display if present */}
       {question.mathPrompt && (
@@ -125,13 +134,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
       )}
 
       {/* Input Options (Multiple Choice or Text Input) */}
-      {question.type === 'choice' && question.options ? (
+      {isChoice && question.options ? (
         <div className="mt-4 space-y-2">
           {question.options.map((opt) => (
             <label
               key={opt.key}
               className={`flex items-center gap-3 p-3 rounded-xl border text-sm cursor-pointer transition-all min-h-[44px] ${
-                selectedOption === opt.key
+                answer.option === opt.key
                   ? 'border-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-900 dark:text-indigo-200 font-medium'
                   : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
               }`}
@@ -140,16 +149,22 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
                 type="radio"
                 name={`opt-${question.id}`}
                 value={opt.key}
-                aria-label={`Pilihan ${opt.key} untuk soal nomor ${question.number}`}
-                checked={selectedOption === opt.key}
-                onChange={() => setSelectedOption(opt.key)}
-                className="w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500"
+                aria-label={`Pilihan ${opt.key}: ${opt.text}`}
+                checked={answer.option === opt.key}
+                onChange={() => {
+                  setEmptyWarning(false);
+                  onChange({ ...answer, option: opt.key });
+                }}
+                className="w-4 h-4 accent-indigo-600 dark:accent-indigo-500 focus:ring-indigo-500"
               />
               <span className="font-bold text-indigo-600 dark:text-indigo-400">{opt.key}.</span>
-              <span className="flex-1">
-                {opt.text}
-                {opt.math && <MathView math={opt.math} className="ml-1 inline-block" />}
-              </span>
+              <div className="flex-1">
+                {opt.math ? (
+                  <MathView math={opt.math} className="mx-1" />
+                ) : (
+                  <MathText text={opt.text} />
+                )}
+              </div>
             </label>
           ))}
         </div>
@@ -157,12 +172,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
         <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <input
             type="text"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
+            value={answer.input}
+            onChange={(e) => {
+              setEmptyWarning(false);
+              onChange({ ...answer, input: e.target.value });
+            }}
             onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
             aria-label={`Ketik jawaban akhir untuk soal nomor ${question.number}`}
             placeholder="Ketik jawabanmu di sini..."
-            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
+            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[44px]"
           />
         </div>
       )}
@@ -176,9 +194,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
           Periksa Jawaban
         </button>
 
-        {question.hint && (
+        {mode === 'guided' && question.hint && (
           <button
             onClick={() => setShowHint(!showHint)}
+            aria-expanded={showHint}
             className="min-h-[44px] px-3.5 py-2.5 bg-amber-100 dark:bg-amber-950/60 hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5"
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -188,13 +207,14 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
 
         <button
           onClick={() => setShowExplanation(!showExplanation)}
-          className="min-h-[44px] px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ml-auto"
+          aria-expanded={showExplanation}
+          className="min-h-[44px] px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ml-0 sm:ml-auto"
         >
           {showExplanation ? 'Tutup Pembahasan' : mode === 'guided' ? 'Pembahasan Kelas' : 'Lihat Solusi Lengkap'}
           {showExplanation ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
 
-        {isAnswered && (
+        {answer.answered && (
           <button
             onClick={handleReset}
             aria-label={`Ulangi soal nomor ${question.number}`}
@@ -206,16 +226,30 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
         )}
       </div>
 
+      {/* Empty-input warning */}
+      {emptyWarning && (
+        <p
+          role="alert"
+          className="mt-3 text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300"
+        >
+          {isChoice
+            ? 'Pilih salah satu opsi terlebih dahulu sebelum memeriksa jawaban.'
+            : 'Isi jawabanmu terlebih dahulu sebelum memeriksa.'}
+        </p>
+      )}
+
       {/* Answer Status Feedback */}
-      {isAnswered && (
+      {answer.answered && (
         <div
+          role="status"
+          aria-live="polite"
           className={`mt-4 p-3.5 rounded-xl text-xs sm:text-sm flex items-center gap-2.5 animate-fadeIn ${
-            isCorrect
+            answer.correct
               ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800'
               : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-800'
           }`}
         >
-          {isCorrect ? (
+          {answer.correct ? (
             <>
               <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
               <span>
@@ -226,7 +260,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
             <>
               <XCircle className="w-5 h-5 text-rose-500 shrink-0" />
               <span>
-                <strong>Belum Tepat.</strong> Kunci yang diharapkan: <strong>{question.correctAnswer}</strong>. Periksa kembali langkah aljabarmu atau buka petunjuk/pembahasan.
+                <strong>Belum Tepat.</strong> Kunci yang diharapkan:{' '}
+                <strong>{question.correctAnswer}</strong>. Periksa kembali langkah aljabarmu atau buka
+                petunjuk/pembahasan.
               </span>
             </>
           )}
@@ -234,24 +270,24 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
       )}
 
       {/* Hint Accordion */}
-      {showHint && question.hint && (
+      {showHint && question.hint && mode === 'guided' && (
         <div className="mt-3 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs sm:text-sm text-amber-900 dark:text-amber-200 animate-fadeIn">
           <div className="font-bold flex items-center gap-1.5 mb-1 text-amber-800 dark:text-amber-300">
             <HelpCircle className="w-4 h-4" />
             Petunjuk Awal (Hint):
           </div>
-          <p>{question.hint}</p>
+          <MathText text={question.hint} />
         </div>
       )}
 
       {/* Full Explanation Accordion */}
       {showExplanation && (
-        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 animate-fadeIn space-y-2">
-          <div className="font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5 uppercase text-xs tracking-wider">
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 animate-fadeIn">
+          <div className="font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5 uppercase text-xs tracking-wider mb-2">
             <BookOpen className="w-4 h-4" />
             Langkah Pembahasan & Kunci Jawaban
           </div>
-          <p className="whitespace-pre-line leading-relaxed">{question.explanation}</p>
+          <MathText text={question.explanation} />
         </div>
       )}
     </div>
@@ -260,23 +296,36 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, onAnswerChe
 
 export const PaketLatihanSection: React.FC = () => {
   const [activePaket, setActivePaket] = useState<'A' | 'B'>('A');
-  const [scores, setScores] = useState<Record<string, boolean>>({});
-  const [resetKey, setResetKey] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, AnswerState>>({});
 
-  const handleScoreUpdate = (id: string, correct: boolean) => {
-    setScores((prev) => ({ ...prev, [id]: correct }));
+  const currentQuestions = activePaket === 'A' ? paketAData : paketBData;
+  const totalPoints = currentQuestions.reduce((sum, question) => sum + question.points, 0);
+  const earnedPoints = currentQuestions.reduce(
+    (sum, question) => sum + (answers[question.id]?.correct ? question.points : 0),
+    0
+  );
+  const correctCount = currentQuestions.filter((question) => answers[question.id]?.correct).length;
+  const answeredCount = currentQuestions.filter((question) => answers[question.id]?.answered).length;
+
+  const handleChangeAnswer = (id: string, next: AnswerState) => {
+    setAnswers((prev) => ({ ...prev, [id]: next }));
   };
 
   const handleResetCurrentPaket = () => {
-    if (window.confirm(`Apakah kamu ingin mengosongkan semua isian dan mereset skor pada Paket ${activePaket}?`)) {
-      setScores({});
-      setResetKey((prev) => prev + 1);
+    if (
+      window.confirm(
+        `Apakah kamu ingin mengosongkan semua isian dan mereset skor pada Paket ${activePaket}?`
+      )
+    ) {
+      setAnswers((prev) => {
+        const next = { ...prev };
+        currentQuestions.forEach((question) => {
+          delete next[question.id];
+        });
+        return next;
+      });
     }
   };
-
-  const currentQuestions = activePaket === 'A' ? paketAData : paketBData;
-  const correctCount = currentQuestions.filter((q) => scores[q.id]).length;
-  const currentTotalScore = correctCount * 10;
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -287,18 +336,26 @@ export const PaketLatihanSection: React.FC = () => {
             <BookOpen className="w-3.5 h-3.5" />
             Latihan Berpasangan & Setara (Isomorfik)
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
             Latihan Ulangan Harian: Paket A & Paket B
-          </h2>
+          </h1>
           <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
-            Dua paket soal dengan kisi-kisi dan tingkat kesulitan yang setara persis. <strong>Paket A</strong> disiapkan untuk dipelajari bersama di kelas dengan bantuan petunjuk bertahap (*guided mode*), sedangkan <strong>Paket B</strong> disiapkan untuk latihan mandiri siswa di rumah (*independent practice*).
+            Dua paket soal dengan kisi-kisi dan tingkat kesulitan yang setara. <strong>Paket A</strong>{' '}
+            dipelajari bersama di kelas dengan bantuan petunjuk bertahap (<em>guided mode</em>),
+            sedangkan <strong>Paket B</strong> untuk latihan mandiri siswa di rumah (
+            <em>independent practice</em>).
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-indigo-800/60">
+        <div
+          role="group"
+          aria-label="Pilih paket latihan"
+          className="mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-indigo-800/60"
+        >
           <button
             onClick={() => setActivePaket('A')}
+            aria-pressed={activePaket === 'A'}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
               activePaket === 'A'
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400'
@@ -311,6 +368,7 @@ export const PaketLatihanSection: React.FC = () => {
 
           <button
             onClick={() => setActivePaket('B')}
+            aria-pressed={activePaket === 'B'}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
               activePaket === 'B'
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400'
@@ -342,26 +400,30 @@ export const PaketLatihanSection: React.FC = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             {activePaket === 'A'
               ? 'Gunakan tombol Hint jika mengalami kendala, diskusikan langkah penyelesaian bersama teman/guru.'
-              : 'Kerjakan secara mandiri tanpa melihat kunci terlebih dahulu untuk menguji kesiapan sebelum Ulangan Harian.'}
+              : 'Kerjakan secara mandiri; petunjuk tidak ditampilkan agar kamu benar-benar menguji kesiapan sebelum Ulangan Harian.'}
           </p>
         </div>
 
         {/* Live Score Counter & Reset */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
+          <div
+            aria-live="polite"
+            className="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0"
+          >
             <Award className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <div className="text-xs">
-              <div className="text-slate-400">Skor Latihan:</div>
+              <div className="text-slate-500 dark:text-slate-400">Skor Latihan:</div>
               <div className="text-base font-extrabold text-slate-900 dark:text-slate-100">
-                {currentTotalScore} <span className="text-xs font-normal text-slate-500">/ 100</span>
+                {earnedPoints}{' '}
+                <span className="text-xs font-normal text-slate-500">/ {totalPoints}</span>
               </div>
             </div>
             <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
-              {correctCount} / 10 Benar
+              {correctCount} / {currentQuestions.length} Benar
             </span>
           </div>
 
-          {correctCount > 0 && (
+          {answeredCount > 0 && (
             <button
               onClick={handleResetCurrentPaket}
               aria-label={`Reset seluruh jawaban Paket ${activePaket}`}
@@ -375,13 +437,15 @@ export const PaketLatihanSection: React.FC = () => {
       </div>
 
       {/* Questions List */}
+      <h2 className="sr-only">Daftar Soal Paket {activePaket}</h2>
       <div className="space-y-4">
-        {currentQuestions.map((q) => (
+        {currentQuestions.map((question) => (
           <QuestionCard
-            key={`${q.id}-${resetKey}`}
-            question={q}
+            key={question.id}
+            question={question}
             mode={activePaket === 'A' ? 'guided' : 'independent'}
-            onAnswerChecked={handleScoreUpdate}
+            answer={answers[question.id] || EMPTY_ANSWER}
+            onChange={(next) => handleChangeAnswer(question.id, next)}
           />
         ))}
       </div>

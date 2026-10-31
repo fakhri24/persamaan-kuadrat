@@ -6,6 +6,33 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* Native controls (radio, checkbox, scrollbar) mengikuti tema gelap */
+  .dark {
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Petunjuk visual bahwa rumus masih dapat digeser */
+  /* Rapatkan jarak antar-rumus blok di dalam teks matematika (pembahasan). */
+  .whitespace-pre-line .katex-display {
+    margin: 0.4em 0;
+  }
+
+  .math-overflow-fade {
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  }
 }
 
 @keyframes fadeIn {
@@ -34,4 +61,15 @@
 
 .animate-slideLeft {
   animation: slideLeft 0.25s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fadeIn,
+  .animate-slideLeft {
+    animation: none;
+  }
 }
