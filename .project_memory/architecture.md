@@ -48,7 +48,13 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
    - Feedback jawaban memakai `role="status"`/`aria-live="polite"`; `color-scheme: dark` diterapkan agar kontrol native (radio/checkbox) ikut bertema.
    - Tombol "kembali ke atas" disembunyikan pada tab latihan/UH agar tidak menutupi tombol aksi kartu.
 
-9. **Protokol Operasional (Continuous Deployment & Memory Sync)**:
+9. **Materi Cetak (PDF)**:
+   - `scripts/generate-paket-a-pdf.mjs` menghasilkan PDF A4 **2 halaman** dari `paketAData`: 50% kiri soal, 50% kanan ruang pengerjaan, identitas hanya Nama Siswa dan Kelas.
+   - Matematika dirender saat pembuatan PDF memakai KaTeX dengan font ter-embed, sehingga file mandiri tanpa dependensi jaringan.
+   - Output: `public/downloads/paket-a-soal.pdf`. Tombol "Unduh soal Paket A (PDF, 2 halaman)" tampil di tab Paket A.
+   - Regenerasi: `npm run pdf:paket-a`.
+
+10. **Protokol Operasional (Continuous Deployment & Memory Sync)**:
    - **Sinkronisasi Memori Otomatis**: Setiap keputusan arsitektur dan penambahan fitur wajib langsung dicatat ke `.project_memory/decisions.md` dan `architecture.md`.
    - **Auto Push & Deploy**: Setiap perubahan yang telah diverifikasi (`npm run build`) harus langsung di-commit dan di-push ke branch `main` pada remote `origin` (`https://github.com/fakhri24/persamaan-kuadrat.git`).
    - **GitHub Pages CI/CD**: Workflow GitHub Actions (`.github/workflows/deploy.yml`) akan secara otomatis mem-build dan men-deploy ke live URL GitHub Pages `https://fakhri24.github.io/persamaan-kuadrat/`.
