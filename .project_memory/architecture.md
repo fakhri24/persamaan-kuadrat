@@ -52,7 +52,7 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
 9. **Materi Cetak (PDF)**:
    - `scripts/generate-paket-a-pdf.mjs` menghasilkan PDF A4 **2 halaman** dari `paketAData`: setiap baris berisi **kotak soal (kiri) + kotak ruang pengerjaan (kanan)** dengan lebar 50:50 dan garis bawah sejajar.
    - Setiap soal memuat 5 opsi (A–E). Identitas hanya Nama Siswa dan Kelas; tanpa kunci jawaban.
-   - Label "RUANG PENGERJAAN" tidak ditampilkan; kotak kerja hanya berisi garis bantu. No. 10 tidak menampilkan rumus Pythagoras maupun caption "skema tidak berskala"; ilustrasi tembok dibuat lebih lengkap (pola bata, label TEMBOK, tangga, dimensi t/17 m/x).
+   - Label "RUANG PENGERJAAN" tidak ditampilkan; kotak kerja dibuat **polos putih tanpa garis bantu**, hanya dibatasi border kotak. No. 10 tidak menampilkan rumus Pythagoras maupun caption "skema tidak berskala"; ilustrasi tembok dibuat lebih lengkap (pola bata, label TEMBOK, tangga, dimensi t/17 m/x).
    - Matematika dirender saat pembuatan PDF memakai KaTeX dengan font ter-embed; output `public/downloads/paket-a-soal.pdf`; regenerasi `npm run pdf:paket-a`.
 
 10. **Rencana Penyesuaian Paket B (belum dieksekusi)**:

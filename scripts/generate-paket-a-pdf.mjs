@@ -224,16 +224,7 @@ const css = `
   .q-box, .work-box { border: .25mm solid #cbd5e1; border-radius: 1.2mm; }
   .q-box { border-left: .9mm solid #6366f1; padding: 2.1mm 2.5mm; }
   .work-box {
-    padding: 2mm;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      #dbe3ee 0,
-      #dbe3ee .22mm,
-      transparent .22mm,
-      transparent 7mm
-    );
-    background-origin: content-box;
-    background-clip: content-box;
+    background: #fff;
   }
   .q { break-inside: avoid; }
   .q-head { display: flex; align-items: center; gap: 2mm; margin-bottom: .8mm; }
