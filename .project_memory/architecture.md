@@ -37,8 +37,9 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
    - `MathView` blok melakukan *auto-fit* (skala minimum 0,85) agar rumus muat di layar kecil; bila masih lebih lebar, diberikan fade + `title` "Geser ke samping" sebagai isyarat gulir, bukan pemotongan senyap.
 
 7. **Bank Soal & Kesetaraan**:
-   - Paket A (guided) dan Paket B (mandiri) memakai 10 tipe soal yang sama dengan angka berbeda; keduanya bebas dari duplikasi persamaan Latihan 5.1–5.5.
-   - Kunci pilihan ganda disebar (bukan menumpuk di A) untuk menjaga validitas penilaian.
+   - Paket A (guided) kini berupa **10 soal pilihan ganda dengan 5 opsi (A–E)**; kunci disebar merata (A–E masing-masing 2 soal). Paket A bebas dari duplikasi persamaan Latihan 5.1–5.5.
+   - Paket A No. 2 secara eksplisit meminta penyelesaian dengan **rumus ABC atau melengkapkan kuadrat**; pembahasannya menampilkan kedua cara.
+   - Paket B masih memakai campuran isian dan PG 4 opsi. Rencana penyesuaiannya ada di bagian 10.
    - Ulangan Harian memakai angka baru untuk No. 10 (tangga 20 m/+4 → 16 m) dan No. 11 (pecahan rasional → 2 atau 5), serta soal kecukupan data baru untuk No. 12.
    - Latihan 5.1 No. 4 memakai kunci "3 atau 7" sesuai pembahasan (sebelumnya hanya "7").
 
@@ -49,12 +50,17 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
    - Tombol "kembali ke atas" disembunyikan pada tab latihan/UH agar tidak menutupi tombol aksi kartu.
 
 9. **Materi Cetak (PDF)**:
-   - `scripts/generate-paket-a-pdf.mjs` menghasilkan PDF A4 **2 halaman** dari `paketAData`: 50% kiri soal, 50% kanan ruang pengerjaan, identitas hanya Nama Siswa dan Kelas.
-   - Matematika dirender saat pembuatan PDF memakai KaTeX dengan font ter-embed, sehingga file mandiri tanpa dependensi jaringan.
-   - Output: `public/downloads/paket-a-soal.pdf`. Tombol "Unduh soal Paket A (PDF, 2 halaman)" tampil di tab Paket A.
-   - Regenerasi: `npm run pdf:paket-a`.
+   - `scripts/generate-paket-a-pdf.mjs` menghasilkan PDF A4 **2 halaman** dari `paketAData`: setiap baris berisi **kotak soal (kiri) + kotak ruang pengerjaan (kanan)** dengan lebar 50:50 dan garis bawah sejajar.
+   - Setiap soal memuat 5 opsi (A–E). Identitas hanya Nama Siswa dan Kelas; tanpa kunci jawaban.
+   - Label "RUANG PENGERJAAN" tidak ditampilkan; kotak kerja hanya berisi garis bantu. No. 10 tidak menampilkan rumus Pythagoras maupun caption "skema tidak berskala"; ilustrasi tembok dibuat lebih lengkap (pola bata, label TEMBOK, tangga, dimensi t/17 m/x).
+   - Matematika dirender saat pembuatan PDF memakai KaTeX dengan font ter-embed; output `public/downloads/paket-a-soal.pdf`; regenerasi `npm run pdf:paket-a`.
 
-10. **Protokol Operasional (Continuous Deployment & Memory Sync)**:
+10. **Rencana Penyesuaian Paket B (belum dieksekusi)**:
+   - B1: `2x² − 7x + 3 = 0` (a = 2, dapat difaktorkan) → `x = 1/2` atau `x = 3`.
+   - B6: `3x² − 15x + 18 = 0` (a = 3; `x₁ + x₂ = 5`, `x₁x₂ = 6` tetap bulat) → `x₁² + x₂² = 13`.
+   - Agar sejajar dengan Paket A: B2/B8/B9 perlu opsi ke-5, dan B1–B6/B10 perlu dikonversi menjadi PG 5 opsi.
+
+11. **Protokol Operasional (Continuous Deployment & Memory Sync)**:
    - **Sinkronisasi Memori Otomatis**: Setiap keputusan arsitektur dan penambahan fitur wajib langsung dicatat ke `.project_memory/decisions.md` dan `architecture.md`.
    - **Auto Push & Deploy**: Setiap perubahan yang telah diverifikasi (`npm run build`) harus langsung di-commit dan di-push ke branch `main` pada remote `origin` (`https://github.com/fakhri24/persamaan-kuadrat.git`).
    - **GitHub Pages CI/CD**: Workflow GitHub Actions (`.github/workflows/deploy.yml`) akan secara otomatis mem-build dan men-deploy ke live URL GitHub Pages `https://fakhri24.github.io/persamaan-kuadrat/`.

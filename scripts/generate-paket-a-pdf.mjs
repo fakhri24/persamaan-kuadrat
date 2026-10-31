@@ -4,7 +4,8 @@
  *
  * - Mengambil data langsung dari src/data/uhExerciseData.ts (paketAData).
  * - Matematika dirender dengan KaTeX (font di-embed sebagai data URI).
- * - Layout: setiap halaman dibagi 50% soal (kiri) dan 50% ruang pengerjaan (kanan).
+ * - Setiap baris: satu kotak soal (kiri) + satu kotak ruang pengerjaan (kanan),
+ *   tinggi mengikuti isi soal dan garis bawahnya sejajar.
  * - Identitas hanya Nama Siswa dan Kelas.
  *
  * Jalankan: npm run pdf:paket-a
@@ -20,8 +21,8 @@ import { chromium } from 'playwright';
 const ROOT = process.cwd();
 const KATEX_DIST = path.join(ROOT, 'node_modules', 'katex', 'dist');
 const OUTPUT = path.join(ROOT, 'public', 'downloads', 'paket-a-soal.pdf');
-const TMP_IMAGES = path.join(ROOT, 'audit-results', 'paket-a-pdf');
-const SPLIT_AT = 6; // halaman 1: soal 1-6, halaman 2: soal 7-10
+const PREVIEW_DIR = path.join(ROOT, 'audit-results', 'paket-a-pdf');
+const SPLIT_AT = 5; // halaman 1: soal 1-5, halaman 2: soal 6-10
 
 const escapeHtml = (value) =>
   String(value)
@@ -38,7 +39,6 @@ const renderMath = (tex, displayMode = false) =>
     strict: 'ignore',
   });
 
-/** Render teks yang memuat $...$ (inline) dan $$...$$ (blok). */
 const richText = (text) => {
   const segments = [];
   const pattern = /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g;
@@ -46,17 +46,11 @@ const richText = (text) => {
   let match;
 
   while ((match = pattern.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      segments.push(escapeHtml(text.slice(lastIndex, match.index)));
-    }
-    if (match[1] !== undefined) {
-      segments.push(renderMath(match[1], true));
-    } else if (match[2] !== undefined) {
-      segments.push(renderMath(match[2], false));
-    }
+    if (match.index > lastIndex) segments.push(escapeHtml(text.slice(lastIndex, match.index)));
+    if (match[1] !== undefined) segments.push(renderMath(match[1], true));
+    else if (match[2] !== undefined) segments.push(renderMath(match[2], false));
     lastIndex = match.index + match[0].length;
   }
-
   if (lastIndex < text.length) segments.push(escapeHtml(text.slice(lastIndex)));
   return segments.join('');
 };
@@ -78,34 +72,50 @@ const PDF_CUSTOM = {
   10: {
     tag: 'Stimulus Geometri & K3',
     stim: 'Tangga darurat sepanjang $17$ m disandarkan pada dinding vertikal. Ketinggian ujung atas tangga di dinding ($t$) lebih tinggi $7$ m daripada jarak kaki tangga ke dinding ($x$).',
-    formula: 'x^2 + (x + 7)^2 = 17^2 \\\\ t = x + 7',
+    formula: null,
     ask: 'Tentukan tinggi $t$ (dalam meter).',
     diagram: true,
   },
 };
 
 const ladderSvg = (item) => {
-  const { panjangTangga, tinggiLabel, jarakLabel } = item.diagramConfig;
+  const { panjangTangga, jarakLabel } = item.diagramConfig;
   const rungs = Array.from({ length: 7 }, (_, index) => {
     const t = (index + 1) / 8;
-    const x = 62 + t * 143;
-    const y = 15 + t * 110;
-    return `<line x1="${(x - 4).toFixed(1)}" y1="${(y + 3).toFixed(1)}" x2="${(x + 4).toFixed(1)}" y2="${(y - 3).toFixed(1)}" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round"/>`;
+    const x = 64 + t * 141;
+    const y = 16 + t * 108;
+    return `<line x1="${(x - 4).toFixed(1)}" y1="${(y + 3).toFixed(1)}" x2="${(x + 4).toFixed(1)}" y2="${(y - 3).toFixed(1)}" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>`;
+  }).join('');
+
+  const floorHatch = Array.from({ length: 12 }, (_, index) => {
+    const x = 58 + index * 15;
+    return `<line x1="${x}" y1="124" x2="${x - 9}" y2="133" stroke="#cbd5e1" stroke-width="1"/>`;
   }).join('');
 
   return `<div class="diagram">
-    <svg viewBox="0 0 240 140" width="64mm" height="37mm" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skema tangga pada dinding">
-      <line x1="62" y1="15" x2="62" y2="125" stroke="#334155" stroke-width="2.4"/>
-      <line x1="62" y1="125" x2="230" y2="125" stroke="#334155" stroke-width="2.4"/>
-      <line x1="62" y1="15" x2="205" y2="125" stroke="#d97706" stroke-width="4" stroke-linecap="round"/>
+    <svg viewBox="0 0 240 142" width="62mm" height="36mm" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skema tangga pada dinding">
+      <defs>
+        <pattern id="brick" width="18" height="10" patternUnits="userSpaceOnUse">
+          <rect width="18" height="10" fill="#f8fafc"/>
+          <path d="M0 0H18M0 5H18M9 0V5M0 5V10M18 5V10" stroke="#cbd5e1" stroke-width="0.7" fill="none"/>
+        </pattern>
+      </defs>
+      ${floorHatch}
+      <rect x="56" y="12" width="16" height="112" fill="url(#brick)" stroke="#94a3b8" stroke-width="1.2"/>
+      <line x1="56" y1="124" x2="232" y2="124" stroke="#334155" stroke-width="2.2"/>
+      <line x1="64" y1="16" x2="205" y2="124" stroke="#d97706" stroke-width="3.6" stroke-linecap="round"/>
       ${rungs}
-      <path d="M62 113 L74 113 L74 125" fill="none" stroke="#64748b" stroke-width="1.4"/>
-      <text x="30" y="70" transform="rotate(-90 30 70)" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#334155">${escapeHtml(tinggiLabel)}</text>
-      <text x="132" y="137" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#334155">${escapeHtml(jarakLabel)}</text>
-      <rect x="139" y="47" width="46" height="14" rx="3" fill="#fffbeb" stroke="#f59e0b" stroke-width="1"/>
-      <text x="162" y="57" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#92400e">${escapeHtml(panjangTangga)}</text>
+      <path d="M64 112 L76 112 L76 124" fill="none" stroke="#64748b" stroke-width="1.3"/>
+      <text x="64" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="6.4" font-weight="700" letter-spacing="0.6" fill="#64748b">TEMBOK</text>
+      <line x1="44" y1="20" x2="44" y2="120" stroke="#64748b" stroke-width="1"/>
+      <path d="M44 20 l-3 5 h6 z" fill="#64748b"/>
+      <path d="M44 120 l-3 -5 h6 z" fill="#64748b"/>
+      <rect x="31" y="64" width="16" height="10" rx="2" fill="#fff"/>
+      <text x="39" y="71.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#334155">t</text>
+      <text x="132" y="137" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.2" fill="#334155">${escapeHtml(jarakLabel)}</text>
+      <rect x="139" y="46" width="46" height="14" rx="3" fill="#fffbeb" stroke="#f59e0b" stroke-width="1"/>
+      <text x="162" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.2" fill="#92400e">${escapeHtml(panjangTangga)}</text>
     </svg>
-    <div class="diag-cap">Skema tidak berskala</div>
   </div>`;
 };
 
@@ -114,10 +124,8 @@ const buildQuestion = (item) => {
   const tag = custom.tag || tagFor(item);
   const stem = custom.stim ? '' : item.question;
   const stim = custom.stim ? `<div class="stim">${richText(custom.stim)}</div>` : '';
-  const formulaTex = custom.formula || item.mathPrompt;
-  const formula = formulaTex
-    ? `<div class="formula">${renderMath(formulaTex, true)}</div>`
-    : '';
+  const formulaTex = custom.formula !== undefined ? custom.formula : item.mathPrompt;
+  const formula = formulaTex ? `<div class="formula">${renderMath(formulaTex, true)}</div>` : '';
   const ask = custom.ask ? `<div class="ask">${richText(custom.ask)}</div>` : '';
   const diagram = custom.diagram ? ladderSvg(item) : '';
   const options =
@@ -125,7 +133,9 @@ const buildQuestion = (item) => {
       ? `<div class="options">${item.options
           .map(
             (option) =>
-              `<div class="opt"><b>${escapeHtml(option.key)}.</b>${renderMath(option.math || option.text, false)}</div>`
+              `<div class="opt"><b>${escapeHtml(option.key)}.</b>${
+                option.math ? renderMath(option.math, false) : richText(option.text)
+              }</div>`
           )
           .join('')}</div>`
       : '';
@@ -140,6 +150,11 @@ const buildQuestion = (item) => {
     ${options}
   </div>`;
 };
+
+const buildRow = (item) => `<div class="row">
+  <div class="q-box">${buildQuestion(item)}</div>
+  <div class="work-box"></div>
+</div>`;
 
 const katexCss = () => {
   let css = fs.readFileSync(path.join(KATEX_DIST, 'katex.min.css'), 'utf8');
@@ -181,13 +196,7 @@ const css = `
     color: #6366f1;
     font-weight: 700;
   }
-  h1 {
-    margin: 1.2mm 0 0;
-    font-size: 15pt;
-    letter-spacing: -.01em;
-    color: #0f172a;
-    line-height: 1.1;
-  }
+  h1 { margin: 1.2mm 0 0; font-size: 15pt; letter-spacing: -.01em; line-height: 1.1; }
   .sub { margin-top: .8mm; font-size: 8pt; color: #64748b; }
   .identity { display: flex; align-items: flex-end; gap: 10mm; margin-top: 3.2mm; font-size: 8.6pt; }
   .id-field { display: flex; align-items: flex-end; gap: 2mm; }
@@ -204,97 +213,83 @@ const css = `
     color: #64748b;
     font-weight: 700;
   }
-  .split {
-    flex: 1;
-    min-height: 0;
+  .rows { flex: 1; display: flex; flex-direction: column; gap: 2.3mm; margin-top: 2.6mm; }
+  .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin-top: 3mm;
-    border-top: .25mm solid #cbd5e1;
+    gap: 2.3mm;
+    min-height: 33mm;
   }
-  .left { padding: 3.4mm 5mm 0 0; min-width: 0; display: flex; flex-direction: column; }
-  .right {
-    position: relative;
-    padding: 3.4mm 0 0 5mm;
-    border-left: .25mm solid #cbd5e1;
-  }
-  .work-label {
-    font-size: 6.6pt;
-    font-weight: 700;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: #6366f1;
-  }
-  .work-hint { margin-top: .6mm; font-size: 6.3pt; color: #94a3b8; }
-  .work-grid {
-    position: absolute;
-    top: 12.5mm;
-    left: 0;
-    right: 0;
-    bottom: 0;
+  .page-first .row { min-height: 42mm; }
+  .q-box, .work-box { border: .25mm solid #cbd5e1; border-radius: 1.2mm; }
+  .q-box { border-left: .9mm solid #6366f1; padding: 2.1mm 2.5mm; }
+  .work-box {
+    padding: 2mm;
     background-image: repeating-linear-gradient(
       to bottom,
-      transparent 0,
-      transparent 7.9mm,
-      #e2e8f0 8mm
+      #dbe3ee 0,
+      #dbe3ee .22mm,
+      transparent .22mm,
+      transparent 7mm
     );
+    background-origin: content-box;
+    background-clip: content-box;
   }
-  .q { break-inside: avoid; margin-bottom: 3.4mm; }
-  .notes { margin-top: auto; padding-top: 2mm; border-top: .25mm solid #e2e8f0; font-size: 7.4pt; line-height: 1.4; color: #475569; }
-  .q:last-child { margin-bottom: 0; }
-  .q-head { display: flex; align-items: center; gap: 2mm; margin-bottom: 1mm; }
+  .q { break-inside: avoid; }
+  .q-head { display: flex; align-items: center; gap: 2mm; margin-bottom: .8mm; }
   .num {
     display: flex;
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 5.2mm;
-    height: 5.2mm;
+    width: 5mm;
+    height: 5mm;
     border-radius: 50%;
     background: #4338ca;
     color: #fff;
-    font-size: 8.2pt;
+    font-size: 8pt;
     font-weight: 700;
   }
   .tag {
-    font-size: 6.3pt;
+    font-size: 6.2pt;
     font-weight: 700;
     letter-spacing: .07em;
     text-transform: uppercase;
     color: #6366f1;
   }
-  .q-text { font-size: 9.1pt; line-height: 1.34; color: #0f172a; }
-  .page-first .q-text { font-size: 9.9pt; }
-  .page-first .q { margin-bottom: 4.8mm; }
-  .page-first .formula .katex { font-size: 1.1em; }
-  .page-first .options { gap: 1.6mm 3mm; }
-  .page-first .opt { font-size: 9.6pt; }
-  .page-first .ask { font-size: 9.6pt; }
+  .q-text { font-size: 8.55pt; line-height: 1.32; color: #0f172a; }
+  .page-first .q-text { font-size: 8.75pt; }
   .stim {
-    margin: .6mm 0 1mm;
-    padding: 1.8mm 2.4mm;
-    border-left: .8mm solid #6366f1;
+    margin: .5mm 0 .8mm;
+    padding: 1.5mm 2.1mm;
+    border-left: .7mm solid #6366f1;
     background: #f8fafc;
-    font-size: 8.3pt;
-    line-height: 1.36;
+    font-size: 8.1pt;
+    line-height: 1.33;
     color: #334155;
   }
-  .formula { margin: .9mm 0; text-align: center; }
-  .formula .katex-display { margin: .5em 0; }
-  .formula .katex { font-size: 1.04em; }
-  .q-text .katex, .stim .katex, .opt .katex { font-size: 1.08em; }
-  .ask { margin-top: .6mm; font-size: 9pt; font-weight: 600; color: #0f172a; }
+  .formula { margin: .6mm 0; text-align: center; }
+  .formula .katex-display { margin: .35em 0; }
+  .formula .katex { font-size: 1.02em; }
+  .q-text .katex, .stim .katex, .opt .katex { font-size: 1.04em; }
+  .ask { margin-top: .5mm; font-size: 8.55pt; font-weight: 600; color: #0f172a; }
   .options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1mm 3mm;
-    margin-top: 1mm;
+    gap: .8mm 2.4mm;
+    margin-top: .8mm;
   }
-  .opt { display: flex; align-items: baseline; gap: 1.4mm; font-size: 9pt; line-height: 1.3; }
-  .opt b { flex: none; color: #4338ca; font-size: 8pt; }
-  .diagram { margin: 1mm 0 1.2mm; text-align: center; }
+  .opt { display: flex; align-items: baseline; gap: 1.2mm; font-size: 8.35pt; line-height: 1.28; }
+  .opt b { flex: none; color: #4338ca; font-size: 7.7pt; }
+  .page-second .row { min-height: 29mm; }
+  .page-second .rows { gap: 2mm; }
+  .page-second .q-text { font-size: 8.15pt; }
+  .page-second .stim { font-size: 7.75pt; }
+  .page-second .opt { font-size: 8pt; }
+  .page-second .options { gap: .55mm 2.2mm; }
+  .page-second .ask { font-size: 8.2pt; }
+  .diagram { margin: .8mm 0 .9mm; text-align: center; }
   .diagram svg { display: block; margin: 0 auto; }
-  .diag-cap { margin-top: .4mm; font-size: 6.1pt; font-style: italic; color: #94a3b8; }
   .footer {
     position: absolute;
     left: 9mm;
@@ -307,7 +302,7 @@ const css = `
     font-size: 6.2pt;
     color: #94a3b8;
   }
-  .katex-display { margin: .5em 0; }
+  .katex-display { margin: .35em 0; }
 `;
 
 const compileData = async () => {
@@ -341,6 +336,9 @@ const main = async () => {
   if (ordered.length !== 10) {
     throw new Error(`Paket A harus berisi 10 soal, ditemukan ${ordered.length}.`);
   }
+  if (ordered.some((item) => item.type !== 'choice' || !item.options || item.options.length !== 5)) {
+    throw new Error('Semua soal Paket A harus bertipe pilihan ganda dengan tepat 5 opsi.');
+  }
 
   const pages = [ordered.slice(0, SPLIT_AT), ordered.slice(SPLIT_AT)];
 
@@ -351,7 +349,7 @@ const main = async () => {
           ? `<div class="masthead">
               <div class="kicker">Latihan Ulangan Harian • Matematika SMA Kelas X</div>
               <h1>PAKET A — PERSAMAAN KUADRAT</h1>
-              <div class="sub">10 soal • 2 halaman • Kerjakan pada kolom ruang pengerjaan di sebelah kanan</div>
+              <div class="sub">10 soal • 2 halaman • Pilih satu jawaban yang paling tepat</div>
               <div class="identity">
                 <div class="id-field"><span>Nama Siswa</span><span class="fill"></span></div>
                 <div class="id-field"><span>Kelas</span><span class="fill short"></span></div>
@@ -359,14 +357,7 @@ const main = async () => {
             </div>`
           : `<div class="slim-head"><span>Paket A — Persamaan Kuadrat</span><span>Halaman 2 dari 2</span></div>`
       }
-      <div class="split">
-        <div class="left">${items.map(buildQuestion).join('')}${pageIndex === 0 ? `<div class="notes"><b>Petunjuk:</b> Kerjakan pada kolom ruang pengerjaan di sebelah kanan. Tulis nomor soal, langkah pengerjaan, dan jawaban akhir dengan jelas.</div>` : ''}</div>
-        <div class="right">
-          <div class="work-label">Ruang Pengerjaan</div>
-          <div class="work-hint">Tulis nomor soal, langkah pengerjaan, dan jawaban akhir.</div>
-          <div class="work-grid"></div>
-        </div>
-      </div>
+      <div class="rows">${items.map(buildRow).join('')}</div>
       <div class="footer">
         <span>Paket A • Persamaan Kuadrat</span>
         <span>Halaman ${pageIndex + 1} dari 2</span>
@@ -381,13 +372,11 @@ const main = async () => {
       <style>${katexCss()}</style>
       <style>${css}</style>
     </head>
-    <body>
-      ${pages.map(pageHtml).join('')}
-    </body>
+    <body>${pages.map(pageHtml).join('')}</body>
   </html>`;
 
-  const htmlPath = path.join(ROOT, 'audit-results', 'paket-a-pdf', 'paket-a.html');
-  fs.mkdirSync(path.dirname(htmlPath), { recursive: true });
+  const htmlPath = path.join(PREVIEW_DIR, 'paket-a.html');
+  fs.mkdirSync(PREVIEW_DIR, { recursive: true });
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(htmlPath, html);
 
@@ -400,21 +389,16 @@ const main = async () => {
   const metrics = await page.evaluate(() => {
     const pages = [...document.querySelectorAll('.page')];
     return pages.map((pageEl) => {
-      const split = pageEl.querySelector('.split');
-      const left = pageEl.querySelector('.left');
+      const rows = [...pageEl.querySelectorAll('.row')];
+      const footer = pageEl.querySelector('.footer')?.getBoundingClientRect();
+      const lastRow = rows.at(-1)?.getBoundingClientRect();
       return {
+        rows: rows.length,
         pageHeight: pageEl.clientHeight,
         scrollHeight: pageEl.scrollHeight,
-        splitHeight: split?.clientHeight,
-        leftHeight: left?.scrollHeight,
-        overflow: left && split ? left.scrollHeight - split.clientHeight : null,
-        contentOverflow:
-          left && split && left.querySelector('.q:last-child')
-            ? Math.round(
-                left.querySelector('.q:last-child').getBoundingClientRect().bottom -
-                  split.getBoundingClientRect().bottom
-              )
-            : null,
+        lastRowBottom: lastRow ? Math.round(lastRow.bottom) : null,
+        footerTop: footer ? Math.round(footer.top) : null,
+        rowOverflow: lastRow && footer ? Math.round(lastRow.bottom - footer.top) : null,
       };
     });
   });
@@ -432,9 +416,9 @@ const main = async () => {
   });
   await browser.close();
 
-  fs.mkdirSync(TMP_IMAGES, { recursive: true });
+  fs.mkdirSync(PREVIEW_DIR, { recursive: true });
   execFileSync('pdfinfo', [OUTPUT], { stdio: 'inherit' });
-  execFileSync('pdftoppm', ['-png', '-r', '120', OUTPUT, path.join(TMP_IMAGES, 'page')], {
+  execFileSync('pdftoppm', ['-png', '-r', '120', OUTPUT, path.join(PREVIEW_DIR, 'page')], {
     stdio: 'inherit',
   });
   console.log(`PDF written: ${OUTPUT}`);
