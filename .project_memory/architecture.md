@@ -53,7 +53,7 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
    - `scripts/generate-paket-a-pdf.mjs` dan `scripts/generate-paket-b-pdf.mjs` menghasilkan PDF A4 **2 halaman** dari `paketAData`/`paketBData`: setiap baris berisi **kotak soal (kiri) + kotak ruang pengerjaan (kanan)** 50:50 dengan garis bawah sejajar.
    - Setiap soal memuat 5 opsi (A–E). Identitas hanya Nama Siswa dan Kelas; tanpa kunci jawaban.
    - Label "RUANG PENGERJAAN" tidak ditampilkan; kotak kerja **polos putih tanpa garis bantu**, hanya dibatasi border kotak. PDF A No. 10 tetap memuat ilustrasi tembok/tangga (pola bata, label TEMBOK, dimensi t/17 m/x).
-   - PDF B No. 10 **tidak menampilkan rumus/model** `l(l+4)=96`; siswa membangun model luas sendiri dari stimulus. PDF B No. 7 memakai stimulus ringkas seperti PDF A.
+   - PDF B No. 10 **tidak menampilkan rumus/model** `l(l+4)=96`; siswa membangun model luas sendiri dari stimulus. Sebagai gantinya, B10 memuat sketsa SVG persegi panjang (garis ukur panjang/lebar, callout "4 m lebih dari lebar", dan "Luas 96 m²"). PDF B No. 7 memakai stimulus ringkas seperti PDF A.
    - Matematika dirender dengan KaTeX font ter-embed; output `public/downloads/paket-a-soal.pdf` dan `public/downloads/paket-b-soal.pdf`; regenerasi `npm run pdf:paket-a` / `npm run pdf:paket-b`. Tombol unduh mengikuti paket aktif.
 
 10. **Penyesuaian Paket B (sudah dieksekusi 2026-11-07)**:
@@ -62,6 +62,7 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
    - B6: `2x² − 8x + 3 = 0` (a = 2, tanpa faktor bersama) → `p + q = 4`, `pq = 3/2`, `p² + q² = 13`.
    - B9: akar baru `(x₁ − 3)` dan `(x₂ − 3)` dari `x² − 2x − 1 = 0` → `x² + 4x + 2 = 0`.
    - B10: stimulus pemodelan luas lahan (taman baca, panjang 4 m lebih dari lebar, luas 96 m²) → panjang 12 m; diagram tangga dihapus dari Paket B. `mathPrompt` B10 juga dihapus agar siswa membangun model luas sendiri (hint tidak lagi menuliskan persamaan).
+   - B10 memakai stimulus SVG `TamanBacaDiagramSvg` di web dan `gardenSvg` di PDF: persegi panjang, garis ukur **panjang** (atas) dan **lebar** (kiri, arah atas-bawah), callout "4 m lebih dari lebar", serta "Luas 96 m²". Tidak ada variabel `p`/`l` atau persamaan di dalam gambar.
    - Seluruh 10 soal Paket B kini PG 5 opsi; kunci disebar A–E masing-masing 2 soal.
    - PDF Paket B tersedia 2 halaman (`paket-b-soal.pdf`) dengan generator `generate-paket-b-pdf.mjs`; tombol unduh di UI mengikuti paket aktif.
    - Konsekuensi: Paket B tidak lagi memuat item Pythagoras; item tersebut tetap ada di Paket A No. 10 dan UH No. 10. Klaim "isomorfik" pada header dan roadmap diganti menjadi "setara dengan variasi konteks".

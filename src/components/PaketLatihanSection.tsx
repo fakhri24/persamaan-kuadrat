@@ -3,6 +3,7 @@ import { paketAData, paketBData, UHQuestion } from '../data/uhExerciseData';
 import { MathView } from './MathView';
 import { MathText } from './MathText';
 import { TanggaDiagramSvg } from './TanggaDiagramSvg';
+import { TamanBacaDiagramSvg } from './TamanBacaDiagramSvg';
 import { isAnswerCorrect } from '../lib/answerCheck';
 import {
   Users,
@@ -118,6 +119,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, answer, onC
           panjangTangga={question.diagramConfig.panjangTangga}
           tinggiLabel={question.diagramConfig.tinggiLabel}
           jarakLabel={question.diagramConfig.jarakLabel}
+        />
+      )}
+      {question.diagramType === 'persegi-panjang' && question.persegiPanjangConfig && (
+        <TamanBacaDiagramSvg
+          selisihLabel={question.persegiPanjangConfig.selisihLabel}
+          luasLabel={question.persegiPanjangConfig.luasLabel}
         />
       )}
 

@@ -5,6 +5,11 @@ export interface UHStimulus {
   source?: string;
 }
 
+export interface PersegiPanjangDiagramConfig {
+  selisihLabel: string;
+  luasLabel: string;
+}
+
 export interface UHQuestion {
   id: string;
   number: number;
@@ -13,12 +18,13 @@ export interface UHQuestion {
   cognitiveLevel: 'Dasar' | 'Standar TKA' | 'Standar SNBT' | 'Problem Solving SNBT';
   categoryTag: string;
   stimulus?: UHStimulus;
-  diagramType?: 'tangga';
+  diagramType?: 'tangga' | 'persegi-panjang';
   diagramConfig?: {
     panjangTangga: string;
     tinggiLabel: string;
     jarakLabel: string;
   };
+  persegiPanjangConfig?: PersegiPanjangDiagramConfig;
   question: string;
   mathPrompt?: string;
   type: 'text' | 'choice';
@@ -809,6 +815,8 @@ export const paketBData: UHQuestion[] = [
       text: 'Panitia OSIS merencanakan taman baca di sebidang lahan berbentuk persegi panjang. Panjang lahan tersebut $4$ meter lebih dari lebarnya, sedangkan luas lahan yang tersedia $96\\text{ m}^2$. Sebelum memasang pagar keliling, panitia perlu memastikan ukuran panjang lahan.',
       source: 'Proposal Proyek Taman Baca Sekolah',
     },
+    diagramType: 'persegi-panjang',
+    persegiPanjangConfig: { selisihLabel: '4 m', luasLabel: '96 m²' },
     question:
       'Berdasarkan informasi di atas, tentukan panjang lahan taman baca tersebut (dalam meter)!',
     type: 'choice',

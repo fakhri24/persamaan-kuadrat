@@ -72,9 +72,12 @@ async function run() {
       .locator('input[name="opt-pb-10"]')
       .locator('xpath=ancestor::div[contains(@class,"p-5")][1]');
     const b10Text = await b10Card.innerText();
+    const b10SvgCount = await b10Card.locator('svg[role="img"]').count();
+    const b10SvgTitle = (await b10Card.locator('svg title').first().textContent()) || '';
     console.log('B10 stimulus luas found:', Boolean(b10Title));
     console.log('B10 diagram tangga lama masih ada:', b10Ladder.length > 0);
     console.log('B10 masih menampilkan model l(l + 4):', b10Text.includes('l(l + 4)'));
+    console.log('B10 SVG:', b10SvgCount, '| title:', b10SvgTitle.replace(/\s+/g, ' ').trim());
 
     const pdfHref = await page.getAttribute('a:has-text("Unduh soal Paket B")', 'href');
     const pdfResponse = await page.request.get(
@@ -115,6 +118,9 @@ async function run() {
       katexErrors === 0 &&
       consoleErrors.length === 0 &&
       !b10Text.includes('l(l + 4)') &&
+      b10SvgCount === 1 &&
+      b10SvgTitle.includes('4 m') &&
+      b10SvgTitle.includes('96') &&
       String(aPdfHref).includes('paket-a-soal.pdf') &&
       aPdfResponse.status() === 200 &&
       String(pdfHref).includes('paket-b-soal.pdf') &&
@@ -135,6 +141,11 @@ async function run() {
       .locator('input[name="opt-pb-1"]')
       .locator('xpath=ancestor::div[contains(@class,"p-5")][1]');
     await mobileB1.screenshot({ path: 'audit-results/paket-b-new-b1-mobile.png' });
+    const mobileB10 = mobile
+      .locator('input[name="opt-pb-10"]')
+      .locator('xpath=ancestor::div[contains(@class,"p-5")][1]');
+    await mobileB10.scrollIntoViewIfNeeded();
+    await mobileB10.screenshot({ path: 'audit-results/paket-b-new-b10-mobile.png' });
     const horizontalOverflow = await mobile.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth
     );

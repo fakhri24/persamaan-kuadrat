@@ -74,8 +74,45 @@ const PDF_CUSTOM = {
     stim: 'Panitia OSIS merencanakan taman baca di lahan berbentuk persegi panjang. Panjang lahan $4$ m lebih dari lebarnya, sedangkan luas lahan $96$ m².',
     formula: null,
     ask: 'Tentukan panjang lahan taman baca tersebut (dalam meter).',
+    diagram: true,
   },
 };
+
+const gardenSvg = (item) => {
+  const { selisihLabel = '4 m', luasLabel = '96 m²' } = item.persegiPanjangConfig || {};
+  const selisih = escapeHtml(selisihLabel);
+  const luas = escapeHtml(luasLabel);
+
+  return `<div class="diagram">
+    <svg viewBox="0 0 460 250" width="80mm" height="43.5mm" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skema lahan taman baca persegi panjang. Panjang ${selisih} lebih dari lebar. Luas ${luas}.">
+      <rect x="120" y="78" width="260" height="140" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.2"/>
+      <text x="250" y="132" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#4338ca">TAMAN BACA</text>
+      <text x="250" y="166" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Luas ${luas}</text>
+
+      <line x1="120" y1="54" x2="380" y2="54" stroke="#4f46e5" stroke-width="1.4"/>
+      <line x1="120" y1="72" x2="120" y2="48" stroke="#94a3b8" stroke-width="1"/>
+      <line x1="380" y1="72" x2="380" y2="48" stroke="#94a3b8" stroke-width="1"/>
+      <path d="M120 54 L129 49.5 L129 58.5 Z" fill="#4f46e5"/>
+      <path d="M380 54 L371 49.5 L371 58.5 Z" fill="#4f46e5"/>
+      <rect x="208" y="35" width="84" height="22" rx="6" fill="#ffffff"/>
+      <text x="250" y="51" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#4338ca">panjang</text>
+
+      <line x1="90" y1="78" x2="90" y2="218" stroke="#4f46e5" stroke-width="1.4"/>
+      <line x1="114" y1="78" x2="84" y2="78" stroke="#94a3b8" stroke-width="1"/>
+      <line x1="114" y1="218" x2="84" y2="218" stroke="#94a3b8" stroke-width="1"/>
+      <path d="M90 78 L85.5 87 L94.5 87 Z" fill="#4f46e5"/>
+      <path d="M90 218 L85.5 209 L94.5 209 Z" fill="#4f46e5"/>
+      <rect x="78" y="122" width="24" height="52" rx="6" fill="#ffffff"/>
+      <text x="90" y="148" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#4338ca" transform="rotate(90 90 148)">lebar</text>
+
+      <rect x="268" y="6" width="184" height="28" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.3"/>
+      <text x="360" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#92400e">${selisih} lebih dari lebar</text>
+      <path d="M360 34 L380 54" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+      <circle cx="380" cy="54" r="2.2" fill="#f59e0b"/>
+    </svg>
+  </div>`;
+};
+
 
 const buildQuestion = (item) => {
   const custom = PDF_CUSTOM[item.number] || {};
@@ -85,6 +122,7 @@ const buildQuestion = (item) => {
   const formulaTex = custom.formula !== undefined ? custom.formula : item.mathPrompt;
   const formula = formulaTex ? `<div class="formula">${renderMath(formulaTex, true)}</div>` : '';
   const ask = custom.ask ? `<div class="ask">${richText(custom.ask)}</div>` : '';
+  const diagram = custom.diagram ? gardenSvg(item) : '';
   const options =
     item.type === 'choice' && item.options
       ? `<div class="options">${item.options
@@ -101,6 +139,7 @@ const buildQuestion = (item) => {
     <div class="q-head"><span class="num">${item.number}</span><span class="tag">${escapeHtml(tag)}</span></div>
     ${stem ? `<div class="q-text">${richText(stem)}</div>` : ''}
     ${stim}
+    ${diagram}
     ${formula}
     ${ask}
     ${options}
@@ -218,6 +257,8 @@ const css = `
   .formula { margin: .6mm 0; text-align: center; }
   .formula .katex-display { margin: .35em 0; }
   .formula .katex { font-size: 1.02em; }
+  .diagram { margin: .8mm 0 .9mm; text-align: center; }
+  .diagram svg { display: block; margin: 0 auto; }
   .q-text .katex, .stim .katex, .opt .katex { font-size: 1.04em; }
   .ask { margin-top: .5mm; font-size: 8.55pt; font-weight: 600; color: #0f172a; }
   .options {
