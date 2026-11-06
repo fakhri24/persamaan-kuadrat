@@ -211,7 +211,7 @@ export const roadmapData: MeetingPlan[] = [
       'Simulasi Paket A Lengkap (10 Butir Soal Terpandu Kelas)',
     ],
     sideQuests: [
-      'Simulasi Paket B Mandiri (10 Butir Soal Varian Isomorfik di Rumah)',
+      'Simulasi Paket B Mandiri (10 Butir Soal Varian Setara di Rumah)',
     ],
     teacherTips:
       'Gunakan peer-tutoring di mana siswa yang cepat mendampingi teman sebangkunya saat membahas Paket A di kelas.',

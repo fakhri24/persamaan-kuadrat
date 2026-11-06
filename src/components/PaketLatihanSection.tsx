@@ -335,7 +335,7 @@ export const PaketLatihanSection: React.FC = () => {
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-bold uppercase tracking-wider mb-3">
             <BookOpen className="w-3.5 h-3.5" />
-            Latihan Berpasangan & Setara (Isomorfik)
+            Latihan Berpasangan & Setara (Variasi Konteks)
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
             Latihan Ulangan Harian: Paket A & Paket B
@@ -344,7 +344,8 @@ export const PaketLatihanSection: React.FC = () => {
             Dua paket soal dengan kisi-kisi dan tingkat kesulitan yang setara. <strong>Paket A</strong>{' '}
             dipelajari bersama di kelas dengan bantuan petunjuk bertahap (<em>guided mode</em>),
             sedangkan <strong>Paket B</strong> untuk latihan mandiri siswa di rumah (
-            <em>independent practice</em>).
+            <em>independent practice</em>). Keduanya berformat pilihan ganda lima opsi; Paket B memakai
+            variasi angka dan konteks agar bukan sekadar salinan Paket A.
           </p>
         </div>
 

@@ -38,8 +38,8 @@ async function runTkaAuditVerification() {
     const pa10Stimulus = await page.textContent('text=STIMULUS LITERASI & NUMERASI: KESELAMATAN KONSTRUKSI (K3)');
     console.log('   Paket A No 10 Stimulus found:', !!pa10Stimulus);
 
-    const pa10Svg = await page.$$('text=Tangga = 13 m');
-    console.log('   Paket A No 10 SVG Ladder diagram found (Tangga = 13 m):', pa10Svg.length > 0);
+    const pa10Svg = await page.$$('text=Tangga = 17 m');
+    console.log('   Paket A No 10 SVG Ladder diagram found (Tangga = 17 m):', pa10Svg.length > 0);
 
     // 2. Switch to Paket B (No 7 & No 10)
     console.log('2. Switching to Paket B...');
@@ -49,8 +49,8 @@ async function runTkaAuditVerification() {
     const pb7Stimulus = await page.textContent('text=Uji Durasi Ketinggian Lontaran Vertikal');
     console.log('   Paket B No 7 Stimulus found:', !!pb7Stimulus);
 
-    const pb10Svg = await page.$$('text=Tangga = 10 m');
-    console.log('   Paket B No 10 SVG Ladder diagram found (Tangga = 10 m):', pb10Svg.length > 0);
+    const pb10Stimulus = await page.textContent('text=Taman Baca di Lahan Persegi Panjang');
+    console.log('   Paket B No 10 Stimulus found:', !!pb10Stimulus);
 
     // 3. Switch to Ulangan Harian (No 7 & No 10)
     console.log('3. Switching to Ulangan Harian...');
@@ -60,8 +60,8 @@ async function runTkaAuditVerification() {
     const uh7Stimulus = await page.textContent('text=Zona Pantau Waktu Transit Drone Medis');
     console.log('   UH No 7 Stimulus found:', !!uh7Stimulus);
 
-    const uh10Svg = await page.$$('text=Tangga = 15 m');
-    console.log('   UH No 10 SVG Ladder diagram found (Tangga = 15 m):', uh10Svg.length > 0);
+    const uh10Svg = await page.$$('text=Tangga = 20 m');
+    console.log('   UH No 10 SVG Ladder diagram found (Tangga = 20 m):', uh10Svg.length > 0);
 
     // Test inputting answers on UH No 7 and No 10
     console.log('4. Testing answer submissions on UH...');

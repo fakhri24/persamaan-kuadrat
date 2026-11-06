@@ -39,7 +39,7 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
 7. **Bank Soal & Kesetaraan**:
    - Paket A (guided) kini berupa **10 soal pilihan ganda dengan 5 opsi (A–E)**; kunci disebar merata (A–E masing-masing 2 soal). Paket A bebas dari duplikasi persamaan Latihan 5.1–5.5.
    - Paket A No. 2 secara eksplisit meminta penyelesaian dengan **rumus ABC atau melengkapkan kuadrat**; pembahasannya menampilkan kedua cara.
-   - Paket B masih memakai campuran isian dan PG 4 opsi. Rencana penyesuaiannya ada di bagian 10.
+   - Paket B (mandiri) kini juga berupa **10 soal pilihan ganda 5 opsi (A–E)** dengan kunci disebar merata (A–E masing-masing 2 soal), tetapi kontennya divariasikan: B1 `2x² − 7x + 3 = 0` (a ≠ 1; akar 1/2 dan 3), B3 menanyakan koefisien `a`, B6 `2x² − 8x + 3 = 0` (a ≠ 1; `p² + q² = 13`), B9 akar `(x₁ − 3)` dan `(x₂ − 3)`, serta B10 berupa pemodelan luas lahan (bukan Pythagoras).
    - Ulangan Harian memakai angka baru untuk No. 10 (tangga 20 m/+4 → 16 m) dan No. 11 (pecahan rasional → 2 atau 5), serta soal kecukupan data baru untuk No. 12.
    - Latihan 5.1 No. 4 memakai kunci "3 atau 7" sesuai pembahasan (sebelumnya hanya "7").
 
@@ -55,10 +55,14 @@ Website pembelajaran interaktif materi matematika SMA Kelas X **Bab 5 Persamaan 
    - Label "RUANG PENGERJAAN" tidak ditampilkan; kotak kerja dibuat **polos putih tanpa garis bantu**, hanya dibatasi border kotak. No. 10 tidak menampilkan rumus Pythagoras maupun caption "skema tidak berskala"; ilustrasi tembok dibuat lebih lengkap (pola bata, label TEMBOK, tangga, dimensi t/17 m/x).
    - Matematika dirender saat pembuatan PDF memakai KaTeX dengan font ter-embed; output `public/downloads/paket-a-soal.pdf`; regenerasi `npm run pdf:paket-a`.
 
-10. **Rencana Penyesuaian Paket B (belum dieksekusi)**:
+10. **Penyesuaian Paket B (sudah dieksekusi 2026-11-07)**:
    - B1: `2x² − 7x + 3 = 0` (a = 2, dapat difaktorkan) → `x = 1/2` atau `x = 3`.
-   - B6: `3x² − 15x + 18 = 0` (a = 3; `x₁ + x₂ = 5`, `x₁x₂ = 6` tetap bulat) → `x₁² + x₂² = 13`.
-   - Agar sejajar dengan Paket A: B2/B8/B9 perlu opsi ke-5, dan B1–B6/B10 perlu dikonversi menjadi PG 5 opsi.
+   - B3: `ax² + 5x − 6 = 0` dengan `x = −2` → `a = 4` (yang dicari koefisien `a`, bukan `b`).
+   - B6: `2x² − 8x + 3 = 0` (a = 2, tanpa faktor bersama) → `p + q = 4`, `pq = 3/2`, `p² + q² = 13`.
+   - B9: akar baru `(x₁ − 3)` dan `(x₂ − 3)` dari `x² − 2x − 1 = 0` → `x² + 4x + 2 = 0`.
+   - B10: stimulus pemodelan luas lahan (taman baca, panjang 4 m lebih dari lebar, luas 96 m²) → panjang 12 m; diagram tangga dihapus dari Paket B.
+   - Seluruh 10 soal Paket B kini PG 5 opsi; kunci disebar A–E masing-masing 2 soal.
+   - Konsekuensi: Paket B tidak lagi memuat item Pythagoras; item tersebut tetap ada di Paket A No. 10 dan UH No. 10. Klaim "isomorfik" pada header dan roadmap diganti menjadi "setara dengan variasi konteks".
 
 11. **Protokol Operasional (Continuous Deployment & Memory Sync)**:
    - **Sinkronisasi Memori Otomatis**: Setiap keputusan arsitektur dan penambahan fitur wajib langsung dicatat ke `.project_memory/decisions.md` dan `architecture.md`.

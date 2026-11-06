@@ -54,7 +54,7 @@ async function runVerification() {
     await page.click('button:has-text("Paket A & B")');
     await page.waitForTimeout(500);
 
-    const paketHeading = await page.textContent('h2:has-text("Latihan Ulangan Harian")');
+    const paketHeading = await page.textContent('h1:has-text("Latihan Ulangan Harian")');
     console.log('   Paket Heading:', paketHeading?.trim());
 
     // Test Paket A Hint button on Question 1
@@ -78,7 +78,7 @@ async function runVerification() {
     await page.click('button:has-text("Ulangan Harian")');
     await page.waitForTimeout(500);
 
-    const uhHeading = await page.textContent('h2:has-text("Ulangan Harian Persamaan Kuadrat")');
+    const uhHeading = await page.textContent('h1:has-text("Ulangan Harian Persamaan Kuadrat")');
     console.log('   UH Heading:', uhHeading?.trim());
 
     // Verify initial scores
