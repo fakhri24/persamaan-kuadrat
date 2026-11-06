@@ -811,7 +811,6 @@ export const paketBData: UHQuestion[] = [
     },
     question:
       'Berdasarkan informasi di atas, tentukan panjang lahan taman baca tersebut (dalam meter)!',
-    mathPrompt: 'l(l + 4) = 96 \\\\ p = l + 4',
     type: 'choice',
     options: [
       { key: 'A', text: '8 m' },
@@ -822,7 +821,7 @@ export const paketBData: UHQuestion[] = [
     ],
     correctAnswer: 'E',
     acceptedAnswers: ['E', 'e'],
-    hint: 'Misalkan lebar $= l$ meter, maka panjang $= (l + 4)$ meter. Gunakan $l(l + 4) = 96$.',
+    hint: 'Misalkan lebar $= l$ meter. Nyatakan panjang dalam $l$, lalu gunakan rumus luas persegi panjang. Jangan lupa bahwa ukuran harus positif.',
     explanation:
       'Misalkan lebar lahan $= l$ meter. Maka panjang lahan $= (l + 4)$ meter.\n\nLuas lahan:\n$$l(l + 4) = 96$$\n$$l^2 + 4l - 96 = 0$$\n$$(l + 12)(l - 8) = 0$$\nDiperoleh $l = 8$ meter (karena lebar harus positif).\nMaka panjang lahan:\n$$p = l + 4 = 8 + 4 = 12 \\text{ meter}$$\nJawaban: E.',
   },

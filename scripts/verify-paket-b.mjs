@@ -44,6 +44,13 @@ async function run() {
   try {
     await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'networkidle' });
     await page.click('button:has-text("Paket A & B")');
+    await page.waitForTimeout(300);
+    const aPdfHref = await page.getAttribute('a:has-text("Unduh soal Paket A")', 'href');
+    const aPdfResponse = await page.request.get(
+      `http://localhost:${PORT}/${String(aPdfHref).replace('./', '')}`
+    );
+    console.log('PDF A link:', aPdfHref, '| HTTP:', aPdfResponse.status());
+
     await page.click('button:has-text("Paket B (Belajar Mandiri di Rumah)")');
     await page.waitForTimeout(400);
 
@@ -61,8 +68,19 @@ async function run() {
 
     const b10Title = await page.textContent('text=Taman Baca di Lahan Persegi Panjang');
     const b10Ladder = await page.$$('text=Tangga = 10 m');
+    const b10Card = page
+      .locator('input[name="opt-pb-10"]')
+      .locator('xpath=ancestor::div[contains(@class,"p-5")][1]');
+    const b10Text = await b10Card.innerText();
     console.log('B10 stimulus luas found:', Boolean(b10Title));
     console.log('B10 diagram tangga lama masih ada:', b10Ladder.length > 0);
+    console.log('B10 masih menampilkan model l(l + 4):', b10Text.includes('l(l + 4)'));
+
+    const pdfHref = await page.getAttribute('a:has-text("Unduh soal Paket B")', 'href');
+    const pdfResponse = await page.request.get(
+      `http://localhost:${PORT}/${String(pdfHref).replace('./', '')}`
+    );
+    console.log('PDF B link:', pdfHref, '| HTTP:', pdfResponse.status());
 
     await page.screenshot({ path: 'audit-results/paket-b-new-top.png' });
     const b1Card = page
@@ -95,11 +113,13 @@ async function run() {
       /100\s*\/\s*100/.test(scoreText) &&
       /10\s*\/\s*10/.test(scoreText) &&
       katexErrors === 0 &&
-      consoleErrors.length === 0;
+      consoleErrors.length === 0 &&
+      !b10Text.includes('l(l + 4)') &&
+      String(aPdfHref).includes('paket-a-soal.pdf') &&
+      aPdfResponse.status() === 200 &&
+      String(pdfHref).includes('paket-b-soal.pdf') &&
+      pdfResponse.status() === 200;
 
-    const b10Card = page
-      .locator('input[name="opt-pb-10"]')
-      .locator('xpath=ancestor::div[contains(@class,"p-5")][1]');
     await b10Card.scrollIntoViewIfNeeded();
     await b10Card.screenshot({ path: 'audit-results/paket-b-new-b10.png' });
 

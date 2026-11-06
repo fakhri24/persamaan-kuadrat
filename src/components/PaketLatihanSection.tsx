@@ -404,16 +404,14 @@ export const PaketLatihanSection: React.FC = () => {
               ? 'Gunakan tombol Hint jika mengalami kendala, diskusikan langkah penyelesaian bersama teman/guru.'
               : 'Kerjakan secara mandiri; petunjuk tidak ditampilkan agar kamu benar-benar menguji kesiapan sebelum Ulangan Harian.'}
           </p>
-          {activePaket === 'A' && (
-            <a
-              href="./downloads/paket-a-soal.pdf"
-              download="paket-a-soal.pdf"
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:underline"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Unduh soal Paket A (PDF, 2 halaman)
-            </a>
-          )}
+          <a
+            href={`./downloads/paket-${activePaket.toLowerCase()}-soal.pdf`}
+            download={`paket-${activePaket.toLowerCase()}-soal.pdf`}
+            className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:underline"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Unduh soal Paket {activePaket} (PDF, 2 halaman)
+          </a>
         </div>
 
         {/* Live Score Counter & Reset */}
