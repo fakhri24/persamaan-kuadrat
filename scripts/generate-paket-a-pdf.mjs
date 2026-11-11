@@ -151,10 +151,28 @@ const buildQuestion = (item) => {
   </div>`;
 };
 
-const buildRow = (item) => `<div class="row">
+const ROW_MIN_HEIGHT_MM = {
+  // Halaman 1 (No. 1 - 5)
+  1: 42, // Pemfaktoran a=1 (4 baris)
+  2: 55, // Rumus ABC / Melengkapkan kuadrat sempurna (6 baris)
+  3: 43, // Substitusi akar negatif x=-1 (4 baris)
+  4: 51, // Diskriminan akar kembar (5 baris)
+  5: 45, // Teorema Vieta (5 baris)
+  // Halaman 2 (No. 6 - 10)
+  6: 35, // Jumlah kuadrat akar (5 baris)
+  7: 48, // Stimulus selisih akar (6 baris)
+  8: 33, // Menyusun PK baru dasar (4 baris)
+  9: 54, // Menyusun PK berelasi (x1+2) & (x2+2) (9 baris)
+  10: 66, // Stimulus tangga Pythagoras + SVG (8 baris)
+};
+
+const buildRow = (item) => {
+  const minHeight = ROW_MIN_HEIGHT_MM[item.number] || 40;
+  return `<div class="row" style="min-height: ${minHeight}mm;">
   <div class="q-box">${buildQuestion(item)}</div>
   <div class="work-box"></div>
 </div>`;
+};
 
 const katexCss = () => {
   let css = fs.readFileSync(path.join(KATEX_DIST, 'katex.min.css'), 'utf8');
@@ -218,9 +236,7 @@ const css = `
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2.3mm;
-    min-height: 33mm;
   }
-  .page-first .row { min-height: 42mm; }
   .q-box, .work-box { border: .25mm solid #cbd5e1; border-radius: 1.2mm; }
   .q-box { border-left: .9mm solid #6366f1; padding: 2.1mm 2.5mm; }
   .work-box {
@@ -272,7 +288,6 @@ const css = `
   }
   .opt { display: flex; align-items: baseline; gap: 1.2mm; font-size: 8.35pt; line-height: 1.28; }
   .opt b { flex: none; color: #4338ca; font-size: 7.7pt; }
-  .page-second .row { min-height: 29mm; }
   .page-second .rows { gap: 2mm; }
   .page-second .q-text { font-size: 8.15pt; }
   .page-second .stim { font-size: 7.75pt; }

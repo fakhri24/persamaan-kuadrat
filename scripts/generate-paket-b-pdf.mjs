@@ -84,7 +84,7 @@ const gardenSvg = (item) => {
   const luas = escapeHtml(luasLabel);
 
   return `<div class="diagram">
-    <svg viewBox="0 0 460 250" width="80mm" height="43.5mm" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skema lahan taman baca persegi panjang. Panjang ${selisih} lebih dari lebar. Luas ${luas}.">
+    <svg viewBox="0 0 460 250" width="72mm" height="39mm" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skema lahan taman baca persegi panjang. Panjang ${selisih} lebih dari lebar. Luas ${luas}.">
       <rect x="120" y="78" width="260" height="140" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.2"/>
       <text x="250" y="132" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#4338ca">TAMAN BACA</text>
       <text x="250" y="166" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Luas ${luas}</text>
@@ -146,10 +146,28 @@ const buildQuestion = (item) => {
   </div>`;
 };
 
-const buildRow = (item) => `<div class="row">
+const ROW_MIN_HEIGHT_MM = {
+  // Halaman 1 (No. 1 - 5)
+  1: 48, // Pemfaktoran a=2 pengelompokan (6 baris)
+  2: 54, // Rumus ABC / Melengkapkan kuadrat sempurna (6 baris)
+  3: 44, // Substitusi akar negatif x=-2 (5 baris)
+  4: 48, // Diskriminan akar kembar mx^2 - 2mx + 3 = 0 (5 baris)
+  5: 43, // Teorema Vieta (5 baris)
+  // Halaman 2 (No. 6 - 10)
+  6: 34, // Jumlah kuadrat akar (5 baris)
+  7: 45, // Stimulus selisih akar (6 baris)
+  8: 32, // Menyusun PK baru dasar (4 baris)
+  9: 52, // Menyusun PK berelasi (x1-3) & (x2-3) (9 baris)
+  10: 66, // Stimulus luas persegi panjang taman baca + SVG (7 baris)
+};
+
+const buildRow = (item) => {
+  const minHeight = ROW_MIN_HEIGHT_MM[item.number] || 40;
+  return `<div class="row" style="min-height: ${minHeight}mm;">
   <div class="q-box">${buildQuestion(item)}</div>
   <div class="work-box"></div>
 </div>`;
+};
 
 const katexCss = () => {
   let css = fs.readFileSync(path.join(KATEX_DIST, 'katex.min.css'), 'utf8');
@@ -213,9 +231,7 @@ const css = `
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2.3mm;
-    min-height: 33mm;
   }
-  .page-first .row { min-height: 42mm; }
   .q-box, .work-box { border: .25mm solid #cbd5e1; border-radius: 1.2mm; }
   .q-box { border-left: .9mm solid #6366f1; padding: 2.1mm 2.5mm; }
   .work-box {
@@ -269,7 +285,6 @@ const css = `
   }
   .opt { display: flex; align-items: baseline; gap: 1.2mm; font-size: 8.35pt; line-height: 1.28; }
   .opt b { flex: none; color: #4338ca; font-size: 7.7pt; }
-  .page-second .row { min-height: 29mm; }
   .page-second .rows { gap: 2mm; }
   .page-second .q-text { font-size: 8.15pt; }
   .page-second .stim { font-size: 7.75pt; }

@@ -4,6 +4,8 @@ import { uhQuestionsData, UHQuestion } from '../data/uhExerciseData';
 import { MathView } from './MathView';
 import { MathText } from './MathText';
 import { TanggaDiagramSvg } from './TanggaDiagramSvg';
+import { TamanBacaDiagramSvg } from './TamanBacaDiagramSvg';
+import { KolamJalanDiagramSvg } from './KolamJalanDiagramSvg';
 import { isAnswerCorrect } from '../lib/answerCheck';
 import {
   Trophy,
@@ -16,6 +18,7 @@ import {
   BookOpen,
   Star,
   ShieldCheck,
+  Download,
 } from 'lucide-react';
 
 export const UhSection: React.FC = () => {
@@ -112,35 +115,6 @@ export const UhSection: React.FC = () => {
     });
   };
 
-  const getLevelBadge = (level: UHQuestion['cognitiveLevel']) => {
-    switch (level) {
-      case 'Dasar':
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-            🟢 Dasar
-          </span>
-        );
-      case 'Standar TKA':
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
-            🔵 Standar TKA
-          </span>
-        );
-      case 'Standar SNBT':
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
-            🟣 Standar SNBT
-          </span>
-        );
-      case 'Problem Solving SNBT':
-        return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-            🌟 Side Quest Opsional
-          </span>
-        );
-    }
-  };
-
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header Banner */}
@@ -225,6 +199,16 @@ export const UhSection: React.FC = () => {
           <p>
             2. <strong>Soal 11 & 12 bersifat OPSIONAL</strong> dengan nilai masing-masing +5 poin bonus (total bonus +10 poin). Soal ini dapat menambah nilai portofolio atau mengompensasi kesalahan pada soal wajib.
           </p>
+          <div className="pt-2">
+            <a
+              href="./downloads/uh-soal.pdf"
+              download="uh-soal.pdf"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white shadow-sm transition-all"
+            >
+              <Download className="w-4 h-4" />
+              Unduh Soal Ulangan Harian No. 1–12 (PDF A4 • 3 Halaman)
+            </a>
+          </div>
         </div>
       </div>
 
@@ -246,7 +230,7 @@ export const UhSection: React.FC = () => {
                   : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
               } shadow-sm hover:border-indigo-300 dark:hover:border-slate-700`}
             >
-              {/* Question Top Header */}
+              {/* Question Top Header (Bebas Tag Materi agar Tidak Membocorkan Clue) */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2">
                   <span
@@ -258,19 +242,26 @@ export const UhSection: React.FC = () => {
                   >
                     {q.number}
                   </span>
-                  {getLevelBadge(q.cognitiveLevel)}
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                    {q.categoryTag}
-                  </span>
+                  {q.isOptional ? (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                      🌟 Side-Quest Opsional
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      Soal Wajib
+                    </span>
+                  )}
                 </div>
-                <div
-                  className={`text-xs font-bold px-2.5 py-1 rounded-xl ${
-                    q.isOptional
-                      ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200'
-                      : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
-                  }`}
-                >
-                  {q.isOptional ? `Bonus Maks +${q.points} Poin` : `Bobot: ${q.points} Poin`}
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`text-xs font-bold px-2.5 py-1 rounded-xl ${
+                      q.isOptional
+                        ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200'
+                        : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
+                    }`}
+                  >
+                    {q.isOptional ? `Bonus Maks +${q.points} Poin` : `Bobot: ${q.points} Poin`}
+                  </div>
                 </div>
               </div>
 
@@ -304,6 +295,19 @@ export const UhSection: React.FC = () => {
                   panjangTangga={q.diagramConfig.panjangTangga}
                   tinggiLabel={q.diagramConfig.tinggiLabel}
                   jarakLabel={q.diagramConfig.jarakLabel}
+                />
+              )}
+              {q.diagramType === 'persegi-panjang' && q.persegiPanjangConfig && (
+                <TamanBacaDiagramSvg
+                  selisihLabel={q.persegiPanjangConfig.selisihLabel}
+                  luasLabel={q.persegiPanjangConfig.luasLabel}
+                />
+              )}
+              {q.diagramType === 'kolam-jalan' && q.kolamJalanConfig && (
+                <KolamJalanDiagramSvg
+                  luasKolamLabel={q.kolamJalanConfig.luasKolamLabel}
+                  selisihLabel={q.kolamJalanConfig.selisihLabel}
+                  lebarJalanLabel={q.kolamJalanConfig.lebarJalanLabel}
                 />
               )}
 

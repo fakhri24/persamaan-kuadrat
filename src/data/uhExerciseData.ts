@@ -10,6 +10,12 @@ export interface PersegiPanjangDiagramConfig {
   luasLabel: string;
 }
 
+export interface KolamJalanDiagramConfig {
+  luasKolamLabel: string;
+  selisihLabel: string;
+  lebarJalanLabel: string;
+}
+
 export interface UHQuestion {
   id: string;
   number: number;
@@ -18,13 +24,14 @@ export interface UHQuestion {
   cognitiveLevel: 'Dasar' | 'Standar TKA' | 'Standar SNBT' | 'Problem Solving SNBT';
   categoryTag: string;
   stimulus?: UHStimulus;
-  diagramType?: 'tangga' | 'persegi-panjang';
+  diagramType?: 'tangga' | 'persegi-panjang' | 'kolam-jalan';
   diagramConfig?: {
     panjangTangga: string;
     tinggiLabel: string;
     jarakLabel: string;
   };
   persegiPanjangConfig?: PersegiPanjangDiagramConfig;
+  kolamJalanConfig?: KolamJalanDiagramConfig;
   question: string;
   mathPrompt?: string;
   type: 'text' | 'choice';
@@ -38,11 +45,13 @@ export interface UHQuestion {
 /*
  * Catatan format:
  * - Semua matematika ditulis dalam delimiter LaTeX: $...$ (inline) atau $$...$$ (blok).
- * - Dirender oleh komponen <MathText /> sehingga seluruh rumus memakai KaTeX.
+ * - Seluruh langkah pembahasan disusun vertikal sejajar tanda "=" menggunakan \begin{aligned}
+ *   tanpa menumpuk dua langkah dalam satu baris.
  */
 
 /* ==========================================================================
    ULANGAN HARIAN (10 Wajib @ 10 Poin, 2 Opsional @ 5 Poin Bonus)
+   Semua soal berbentuk Pilihan Ganda 5 Opsi (A, B, C, D, E)
    ========================================================================== */
 export const uhQuestionsData: UHQuestion[] = [
   {
@@ -52,26 +61,22 @@ export const uhQuestionsData: UHQuestion[] = [
     points: 10,
     cognitiveLevel: 'Dasar',
     categoryTag: 'Pemfaktoran',
-    question: 'Tentukan himpunan penyelesaian dari persamaan kuadrat berikut menggunakan metode pemfaktoran!',
-    mathPrompt: 'x^2 - 8x + 12 = 0',
-    type: 'text',
-    correctAnswer: '2 atau 6',
-    acceptedAnswers: [
-      '2 atau 6',
-      '6 atau 2',
-      '2, 6',
-      '6, 2',
-      '2,6',
-      '6,2',
-      '{2, 6}',
-      '{6, 2}',
-      'x = 2 atau x = 6',
-      'x=2 atau x=6',
-      '2 dan 6',
+    question:
+      'Tentukan akar-akar dari persamaan kuadrat berikut menggunakan metode pemfaktoran!',
+    mathPrompt: 'x^2 - 4x - 12 = 0',
+    type: 'choice',
+    options: [
+      { key: 'A', text: '2 atau -6' },
+      { key: 'B', text: '-2 atau 6' },
+      { key: 'C', text: '-2 atau -6' },
+      { key: 'D', text: '3 atau -4' },
+      { key: 'E', text: '-3 atau 4' },
     ],
-    hint: 'Cari dua bilangan yang jika dikalikan menghasilkan $12$ dan jika dijumlahkan menghasilkan $-8$.',
+    correctAnswer: 'B',
+    acceptedAnswers: ['B', 'b'],
+    hint: 'Cari dua bilangan yang hasil kalinya $-12$ dan jumlahnya $-4$, yaitu $2$ dan $-6$.',
     explanation:
-      'Faktorkan menjadi $(x - 2)(x - 6) = 0$. Diperoleh $x - 2 = 0 \\implies x_1 = 2$ atau $x - 6 = 0 \\implies x_2 = 6$. Himpunan penyelesaiannya adalah $\\{2, 6\\}$.',
+      'Cari dua bilangan dengan hasil kali $-12$ dan jumlah $-4$, yaitu $2$ dan $-6$:\n$$\\begin{aligned}\nx^2 - 4x - 12 &= 0 \\\\\n(x + 2)(x - 6) &= 0\n\\end{aligned}$$\nPembuat nol masing-masing faktor:\n$$\\begin{aligned}\nx + 2 &= 0 \\\\\nx_1 &= -2\n\\end{aligned}$$\natau\n$$\\begin{aligned}\nx - 6 &= 0 \\\\\nx_2 &= 6\n\\end{aligned}$$\nJawaban yang benar adalah B.',
   },
   {
     id: 'uh-2',
@@ -79,22 +84,23 @@ export const uhQuestionsData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Dasar',
-    categoryTag: 'Rumus Al-Khawarizmi (ABC)',
+    categoryTag: 'Rumus ABC / Kuadrat Sempurna',
     question:
-      'Akar-akar dari persamaan kuadrat berikut jika diselesaikan dengan rumus Al-Khawarizmi (Rumus ABC) adalah...',
-    mathPrompt: 'x^2 - 4x - 1 = 0',
+      'Tentukan akar-akar dari persamaan kuadrat berikut dengan menggunakan rumus Al-Khawarizmi (ABC) atau melengkapkan kuadrat sempurna!',
+    mathPrompt: 'x^2 - 4x - 2 = 0',
     type: 'choice',
     options: [
-      { key: 'A', text: 'x = -2 ± √5', math: 'x = -2 \\pm \\sqrt{5}' },
-      { key: 'B', text: 'x = 4 ± √20', math: 'x = 4 \\pm \\sqrt{20}' },
-      { key: 'C', text: 'x = 2 ± √5', math: 'x = 2 \\pm \\sqrt{5}' },
-      { key: 'D', text: 'x = 2 ± √3', math: 'x = 2 \\pm \\sqrt{3}' },
+      { key: 'A', text: 'x = -2 ± √6', math: 'x = -2 \\pm \\sqrt{6}' },
+      { key: 'B', text: 'x = 4 ± √24', math: 'x = 4 \\pm \\sqrt{24}' },
+      { key: 'C', text: 'x = 2 ± √6', math: 'x = 2 \\pm \\sqrt{6}' },
+      { key: 'D', text: 'x = 2 ± √5', math: 'x = 2 \\pm \\sqrt{5}' },
+      { key: 'E', text: 'x = -2 ± √5', math: 'x = -2 \\pm \\sqrt{5}' },
     ],
     correctAnswer: 'C',
     acceptedAnswers: ['C', 'c'],
-    hint: '$a = 1$, $b = -4$, $c = -1$. Gunakan $x_{1,2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$.',
+    hint: 'Gunakan $(x - 2)^2 = 6$ atau rumus ABC $x_{1,2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ dengan $a = 1$, $b = -4$, $c = -2$.',
     explanation:
-      '$a = 1$, $b = -4$, $c = -1$.\n$$x_{1,2} = \\frac{4 \\pm \\sqrt{(-4)^2 - 4(1)(-1)}}{2}$$\n$$= \\frac{4 \\pm \\sqrt{20}}{2} = \\frac{4 \\pm 2\\sqrt{5}}{2}$$\n$$= 2 \\pm \\sqrt{5}$$\nJawaban yang benar adalah C.',
+      'Cara 1 — Melengkapkan kuadrat sempurna:\n$$\\begin{aligned}\nx^2 - 4x - 2 &= 0 \\\\\nx^2 - 4x &= 2 \\\\\nx^2 - 4x + (-2)^2 &= 2 + (-2)^2 \\\\\n(x - 2)^2 &= 6 \\\\\nx - 2 &= \\pm\\sqrt{6} \\\\\nx &= 2 \\pm \\sqrt{6}\n\\end{aligned}$$\n\nCara 2 — Rumus Al-Khawarizmi (ABC) dengan $a = 1$, $b = -4$, $c = -2$:\n$$\\begin{aligned}\nx_{1,2} &= \\frac{-(-4) \\pm \\sqrt{(-4)^2 - 4(1)(-2)}}{2(1)} \\\\\n&= \\frac{4 \\pm \\sqrt{16 + 8}}{2} \\\\\n&= \\frac{4 \\pm \\sqrt{24}}{2} \\\\\n&= \\frac{4 \\pm 2\\sqrt{6}}{2} \\\\\n&= 2 \\pm \\sqrt{6}\n\\end{aligned}$$\nJawaban yang benar adalah C.',
   },
   {
     id: 'uh-3',
@@ -104,14 +110,21 @@ export const uhQuestionsData: UHQuestion[] = [
     cognitiveLevel: 'Dasar',
     categoryTag: 'Substitusi Solusi Akar',
     question:
-      'Diketahui salah satu akar dari persamaan kuadrat berikut adalah $x = 3$. Tentukan nilai konstanta $c$!',
-    mathPrompt: '2x^2 - 5x + c = 0',
-    type: 'text',
-    correctAnswer: '-3',
-    acceptedAnswers: ['-3', 'c = -3', 'c=-3', '- 3'],
-    hint: 'Substitusikan nilai $x = 3$ langsung ke dalam setiap variabel $x$ pada persamaan.',
+      'Diketahui salah satu akar dari persamaan kuadrat berikut adalah $x = -2$. Tentukan nilai koefisien $b$!',
+    mathPrompt: '2x^2 + bx - 10 = 0',
+    type: 'choice',
+    options: [
+      { key: 'A', text: '-1' },
+      { key: 'B', text: '1' },
+      { key: 'C', text: '-9' },
+      { key: 'D', text: '9' },
+      { key: 'E', text: '-3' },
+    ],
+    correctAnswer: 'A',
+    acceptedAnswers: ['A', 'a'],
+    hint: 'Substitusikan nilai $x = -2$ langsung ke dalam setiap variabel $x$ pada persamaan.',
     explanation:
-      'Substitusi $x = 3$:\n$$2(3)^2 - 5(3) + c = 0$$\n$$\\implies 18 - 15 + c = 0$$\n$$\\implies 3 + c = 0$$\n$$\\implies c = -3$$',
+      'Substitusikan $x = -2$ ke dalam persamaan:\n$$\\begin{aligned}\n2(-2)^2 + b(-2) - 10 &= 0 \\\\\n2(4) - 2b - 10 &= 0 \\\\\n8 - 2b - 10 &= 0 \\\\\n-2b - 2 &= 0 \\\\\n-2b &= 2 \\\\\nb &= -1\n\\end{aligned}$$\nJawaban yang benar adalah A.',
   },
   {
     id: 'uh-4',
@@ -123,12 +136,19 @@ export const uhQuestionsData: UHQuestion[] = [
     question:
       'Tentukan nilai $p$ positif agar persamaan kuadrat berikut mempunyai dua akar riil kembar (sama)!',
     mathPrompt: 'x^2 - px + (p + 3) = 0',
-    type: 'text',
-    correctAnswer: '6',
-    acceptedAnswers: ['6', 'p = 6', 'p=6', '6.0'],
+    type: 'choice',
+    options: [
+      { key: 'A', text: '2' },
+      { key: 'B', text: '3' },
+      { key: 'C', text: '4' },
+      { key: 'D', text: '6' },
+      { key: 'E', text: '12' },
+    ],
+    correctAnswer: 'D',
+    acceptedAnswers: ['D', 'd'],
     hint: 'Syarat dua akar kembar adalah $D = b^2 - 4ac = 0$.',
     explanation:
-      '$a = 1$, $b = -p$, $c = p + 3$.\n$$D = (-p)^2 - 4(1)(p + 3)$$\n$$= p^2 - 4p - 12 = 0$$\n$$(p - 6)(p + 2) = 0$$\n$$\\implies p = 6 \\text{ atau } p = -2$$\nKarena diminta nilai positif, maka $p = 6$.',
+      'Identifikasi koefisien: $a = 1$, $b = -p$, dan $c = p + 3$. Syarat akar kembar ($D = 0$):\n$$\\begin{aligned}\nb^2 - 4ac &= 0 \\\\\n(-p)^2 - 4(1)(p + 3) &= 0 \\\\\np^2 - 4p - 12 &= 0 \\\\\n(p - 6)(p + 2) &= 0\n\\end{aligned}$$\nDiperoleh $p = 6$ atau $p = -2$. Karena diminta nilai positif, maka $p = 6$.\nJawaban yang benar adalah D.',
   },
   {
     id: 'uh-5',
@@ -140,12 +160,19 @@ export const uhQuestionsData: UHQuestion[] = [
     question:
       'Jika $x_1$ dan $x_2$ adalah akar-akar dari persamaan kuadrat berikut, tentukan nilai dari $4x_1 + 4x_2 + 2x_1x_2$!',
     mathPrompt: '2x^2 - 8x + 5 = 0',
-    type: 'text',
-    correctAnswer: '21',
-    acceptedAnswers: ['21', '21.0'],
+    type: 'choice',
+    options: [
+      { key: 'A', text: '13' },
+      { key: 'B', text: '16' },
+      { key: 'C', text: '18' },
+      { key: 'D', text: '21' },
+      { key: 'E', text: '26' },
+    ],
+    correctAnswer: 'D',
+    acceptedAnswers: ['D', 'd'],
     hint: 'Gunakan $x_1 + x_2 = -\\frac{b}{a}$ dan $x_1x_2 = \\frac{c}{a}$, lalu hitung $4(x_1 + x_2) + 2x_1x_2$.',
     explanation:
-      '$x_1 + x_2 = \\frac{8}{2} = 4$ dan $x_1x_2 = \\frac{5}{2}$.\n$$4(x_1 + x_2) + 2x_1x_2 = 4(4) + 2\\left(\\frac{5}{2}\\right)$$\n$$= 16 + 5 = 21$$',
+      'Berdasarkan Teorema Vieta:\n$$\\begin{aligned}\nx_1 + x_2 &= -\\frac{-8}{2} \\\\\n&= 4 \\\\\nx_1 x_2 &= \\frac{5}{2}\n\\end{aligned}$$\nSubstitusikan ke bentuk yang ditanyakan:\n$$\\begin{aligned}\n4x_1 + 4x_2 + 2x_1x_2 &= 4(x_1 + x_2) + 2(x_1x_2) \\\\\n&= 4(4) + 2\\left(\\frac{5}{2}\\right) \\\\\n&= 16 + 5 \\\\\n&= 21\n\\end{aligned}$$\nJawaban yang benar adalah D.',
   },
   {
     id: 'uh-6',
@@ -157,12 +184,19 @@ export const uhQuestionsData: UHQuestion[] = [
     question:
       'Persamaan kuadrat berikut mempunyai akar-akar $\\alpha$ dan $\\beta$. Hitunglah nilai dari $\\alpha^2 + \\beta^2$!',
     mathPrompt: 'x^2 - 6x - 2 = 0',
-    type: 'text',
-    correctAnswer: '40',
-    acceptedAnswers: ['40', '40.0'],
+    type: 'choice',
+    options: [
+      { key: 'A', text: '32' },
+      { key: 'B', text: '34' },
+      { key: 'C', text: '36' },
+      { key: 'D', text: '38' },
+      { key: 'E', text: '40' },
+    ],
+    correctAnswer: 'E',
+    acceptedAnswers: ['E', 'e'],
     hint: 'Gunakan identitas aljabar: $\\alpha^2 + \\beta^2 = (\\alpha + \\beta)^2 - 2\\alpha\\beta$.',
     explanation:
-      'Dari persamaan diperoleh $\\alpha + \\beta = 6$ dan $\\alpha\\beta = -2$.\n$$\\alpha^2 + \\beta^2 = (6)^2 - 2(-2)$$\n$$= 36 + 4 = 40$$',
+      'Dari persamaan $x^2 - 6x - 2 = 0$, diperoleh:\n$$\\begin{aligned}\n\\alpha + \\beta &= 6 \\\\\n\\alpha\\beta &= -2\n\\end{aligned}$$\nGunakan identitas jumlah kuadrat akar:\n$$\\begin{aligned}\n\\alpha^2 + \\beta^2 &= (\\alpha + \\beta)^2 - 2\\alpha\\beta \\\\\n&= (6)^2 - 2(-2) \\\\\n&= 36 + 4 \\\\\n&= 40\n\\end{aligned}$$\nJawaban yang benar adalah E.',
   },
   {
     id: 'uh-7',
@@ -172,20 +206,27 @@ export const uhQuestionsData: UHQuestion[] = [
     cognitiveLevel: 'Standar TKA',
     categoryTag: 'Stimulus Numerasi: Relasi Selisih Akar',
     stimulus: {
-      tag: 'STIMULUS NUMERASI: MISI LOGISTIK DRONE OTONOM',
+      tag: 'WACANA SOAL',
       title: 'Zona Pantau Waktu Transit Drone Medis',
       text: 'Sebuah drone otonom pengantar bantuan medis diterbangkan melewati jalur perbukitan. Sistem telemetri mendeteksi waktu tempuh $t$ (dalam detik) saat drone melintasi batas ketinggian zona kritis memenuhi persamaan kuadrat $t^2 - mt + 16 = 0$, dengan $m$ adalah parameter daya dorong mesin ($m > 0$). Radar mencatat drone memasuki dan meninggalkan zona tersebut pada waktu $t_1 = p$ dan $t_2 = q$ dengan selisih waktu transit $p - q = 6$ detik.',
       source: 'Telemetri Sistem Navigasi Drone Cepat Tanggap',
     },
     question:
       'Berdasarkan catatan telemetri radar di atas, tentukan nilai parameter daya dorong $m$ (dengan $m > 0$) yang memenuhi persamaan tersebut!',
-    mathPrompt: 't^2 - mt + 16 = 0 \\\\ p - q = 6, \\quad m > 0',
-    type: 'text',
-    correctAnswer: '10',
-    acceptedAnswers: ['10', 'm = 10', 'm=10', '10.0'],
+    mathPrompt: 't^2 - mt + 16 = 0',
+    type: 'choice',
+    options: [
+      { key: 'A', text: '6' },
+      { key: 'B', text: '8' },
+      { key: 'C', text: '10' },
+      { key: 'D', text: '12' },
+      { key: 'E', text: '14' },
+    ],
+    correctAnswer: 'C',
+    acceptedAnswers: ['C', 'c'],
     hint: '$p + q = m$ dan $pq = 16$. Gunakan identitas selisih akar: $(p - q)^2 = (p + q)^2 - 4pq$.',
     explanation:
-      'Berdasarkan teorema Vieta: $p + q = m$ dan $pq = 16$.\n\n$$(p - q)^2 = (p + q)^2 - 4pq$$\n$$6^2 = m^2 - 4(16)$$\n$$\\implies 36 = m^2 - 64$$\n$$\\implies m^2 = 100$$\n$$\\implies m = \\pm 10$$\nKarena disyaratkan parameter daya dorong $m > 0$, maka $m = 10$.',
+      'Berdasarkan Teorema Vieta pada $t^2 - mt + 16 = 0$:\n$$\\begin{aligned}\np + q &= m \\\\\npq &= 16\n\\end{aligned}$$\nGunakan hubungan kuadrat selisih akar:\n$$\\begin{aligned}\n(p - q)^2 &= (p + q)^2 - 4pq \\\\\n6^2 &= m^2 - 4(16) \\\\\n36 &= m^2 - 64 \\\\\nm^2 &= 36 + 64 \\\\\nm^2 &= 100 \\\\\nm &= \\pm 10\n\\end{aligned}$$\nKarena disyaratkan parameter $m > 0$, maka $m = 10$.\nJawaban yang benar adalah C.',
   },
   {
     id: 'uh-8',
@@ -202,12 +243,13 @@ export const uhQuestionsData: UHQuestion[] = [
       { key: 'B', text: 'x² + 8x - 15 = 0', math: 'x^2 + 8x - 15 = 0' },
       { key: 'C', text: 'x² - 8x + 15 = 0', math: 'x^2 - 8x + 15 = 0' },
       { key: 'D', text: 'x² + 2x - 15 = 0', math: 'x^2 + 2x - 15 = 0' },
+      { key: 'E', text: 'x² + 2x + 15 = 0', math: 'x^2 + 2x + 15 = 0' },
     ],
     correctAnswer: 'D',
     acceptedAnswers: ['D', 'd'],
     hint: 'Gunakan $(x - x_1)(x - x_2) = 0$ atau $x^2 - (x_1 + x_2)x + x_1x_2 = 0$.',
     explanation:
-      '$x_1 + x_2 = -5 + 3 = -2$ dan $x_1x_2 = (-5)(3) = -15$.\n$$x^2 - (-2)x + (-15) = 0$$\n$$\\implies x^2 + 2x - 15 = 0$$\nJawaban: D.',
+      'Hitung jumlah dan hasil kali kedua akar:\n$$\\begin{aligned}\nx_1 + x_2 &= -5 + 3 \\\\\n&= -2 \\\\\nx_1 x_2 &= (-5)(3) \\\\\n&= -15\n\\end{aligned}$$\nSusun persamaan kuadrat baru:\n$$\\begin{aligned}\nx^2 - (x_1 + x_2)x + x_1 x_2 &= 0 \\\\\nx^2 - (-2)x + (-15) &= 0 \\\\\nx^2 + 2x - 15 &= 0\n\\end{aligned}$$\nJawaban yang benar adalah D.',
   },
   {
     id: 'uh-9',
@@ -218,19 +260,20 @@ export const uhQuestionsData: UHQuestion[] = [
     categoryTag: 'Menyusun PK Berelasi Linear',
     question:
       'Akar-akar persamaan kuadrat berikut adalah $x_1$ dan $x_2$. Persamaan kuadrat baru yang akar-akarnya $(x_1 + 3)$ dan $(x_2 + 3)$ adalah...',
-    mathPrompt: 'x^2 - 4x + 2 = 0',
+    mathPrompt: 'x^2 - 4x - 3 = 0',
     type: 'choice',
     options: [
-      { key: 'A', text: 'x² + 10x + 23 = 0', math: 'x^2 + 10x + 23 = 0' },
-      { key: 'B', text: 'x² - 10x + 23 = 0', math: 'x^2 - 10x + 23 = 0' },
-      { key: 'C', text: 'x² - 10x - 23 = 0', math: 'x^2 - 10x - 23 = 0' },
-      { key: 'D', text: 'x² - 7x + 14 = 0', math: 'x^2 - 7x + 14 = 0' },
+      { key: 'A', text: 'x² + 10x + 18 = 0', math: 'x^2 + 10x + 18 = 0' },
+      { key: 'B', text: 'x² - 10x + 18 = 0', math: 'x^2 - 10x + 18 = 0' },
+      { key: 'C', text: 'x² - 10x + 24 = 0', math: 'x^2 - 10x + 24 = 0' },
+      { key: 'D', text: 'x² - 10x - 18 = 0', math: 'x^2 - 10x - 18 = 0' },
+      { key: 'E', text: 'x² - 7x + 9 = 0', math: 'x^2 - 7x + 9 = 0' },
     ],
     correctAnswer: 'B',
     acceptedAnswers: ['B', 'b'],
     hint: 'Jumlah akar baru $= (x_1 + x_2) + 6$; hasil kali akar baru $= x_1x_2 + 3(x_1 + x_2) + 9$.',
     explanation:
-      '$x_1 + x_2 = 4$ dan $x_1x_2 = 2$. Akar baru $\\alpha = x_1 + 3$ dan $\\beta = x_2 + 3$.\n$$\\alpha + \\beta = 4 + 6 = 10$$\n$$\\alpha\\beta = 2 + 3(4) + 9 = 23$$\n$$x^2 - 10x + 23 = 0$$\nJawaban: B.',
+      'Dari persamaan awal $x^2 - 4x - 3 = 0$, diperoleh:\n$$\\begin{aligned}\nx_1 + x_2 &= 4 \\\\\nx_1 x_2 &= -3\n\\end{aligned}$$\nMisalkan akar-akar baru adalah $\\alpha = x_1 + 3$ dan $\\beta = x_2 + 3$.\nJumlah akar baru:\n$$\\begin{aligned}\n\\alpha + \\beta &= (x_1 + 3) + (x_2 + 3) \\\\\n&= (x_1 + x_2) + 6 \\\\\n&= 4 + 6 \\\\\n&= 10\n\\end{aligned}$$\nHasil kali akar baru:\n$$\\begin{aligned}\n\\alpha\\beta &= (x_1 + 3)(x_2 + 3) \\\\\n&= x_1 x_2 + 3(x_1 + x_2) + 9 \\\\\n&= -3 + 3(4) + 9 \\\\\n&= -3 + 12 + 9 \\\\\n&= 18\n\\end{aligned}$$\nMaka persamaan kuadrat baru adalah:\n$$\\begin{aligned}\nx^2 - (\\alpha + \\beta)x + \\alpha\\beta &= 0 \\\\\nx^2 - 10x + 18 &= 0\n\\end{aligned}$$\nJawaban yang benar adalah B.',
   },
   {
     id: 'uh-10',
@@ -240,7 +283,7 @@ export const uhQuestionsData: UHQuestion[] = [
     cognitiveLevel: 'Standar SNBT',
     categoryTag: 'Stimulus Geometri & K3: Teorema Pythagoras',
     stimulus: {
-      tag: 'STIMULUS LITERASI & NUMERASI: KESELAMATAN KONSTRUKSI (K3)',
+      tag: 'WACANA SOAL',
       title: 'Standar Penempatan Tangga Penyelamatan Gedung',
       text: 'Dalam prosedur simulasi keselamatan darurat gedung, teknisi menyandarkan tangga darurat berjangkauan $20$ meter pada dinding beton vertikal. Agar tumpuan kokoh dan aman dinaiki, ketinggian vertikal ujung atas tangga di dinding ($t$) disyaratkan lebih tinggi $4$ meter dibanding jarak horizontal tapak kaki tangga ke dasar dinding ($x$). Posisi tangga, dinding, dan lantai datar membentuk segitiga siku-siku seperti tampak pada diagram teknis berikut.',
       source: 'Panduan Operasional Teknis K3 & Evakuasi Bangunan',
@@ -248,18 +291,24 @@ export const uhQuestionsData: UHQuestion[] = [
     diagramType: 'tangga',
     diagramConfig: {
       panjangTangga: '20 m',
-      tinggiLabel: 't = x + 4 m',
-      jarakLabel: 'x m',
+      tinggiLabel: 't',
+      jarakLabel: 'x',
     },
     question:
-      'Berdasarkan spesifikasi regulasi dan diagram teknis di atas, hitunglah tinggi tembok yang dicapai oleh ujung tangga tersebut (dalam satuan meter)!',
-    mathPrompt: 'x^2 + (x + 4)^2 = 20^2 \\\\ t = x + 4',
-    type: 'text',
-    correctAnswer: '16',
-    acceptedAnswers: ['16', '16 m', '16m', '16 meter', 't = 16', 't=16', '16.0'],
-    hint: 'Gunakan dalil Pythagoras: $x^2 + (x + 4)^2 = 20^2$. Sederhanakan ke persamaan kuadrat, cari nilai $x$ positif, lalu hitung $t = x + 4$.',
+      'Berdasarkan spesifikasi regulasi dan diagram teknis di atas, hitunglah tinggi tembok ($t$) yang dicapai oleh ujung tangga tersebut!',
+    type: 'choice',
+    options: [
+      { key: 'A', text: '10 m' },
+      { key: 'B', text: '12 m' },
+      { key: 'C', text: '14 m' },
+      { key: 'D', text: '16 m' },
+      { key: 'E', text: '18 m' },
+    ],
+    correctAnswer: 'D',
+    acceptedAnswers: ['D', 'd'],
+    hint: 'Nyatakan $t = x + 4$, lalu terapkan teorema Pythagoras pada segitiga siku-siku untuk mencari $x$ positif.',
     explanation:
-      'Misalkan jarak tapak kaki tangga ke dinding $= x$ meter. Maka tinggi tembok $= (x + 4)$ meter.\n\nDalil Pythagoras:\n$$x^2 + (x + 4)^2 = 20^2$$\n$$2x^2 + 8x + 16 = 400$$\n$$\\implies 2x^2 + 8x - 384 = 0$$\n$$\\implies x^2 + 4x - 192 = 0$$\n$$(x + 16)(x - 12) = 0$$\nDiperoleh $x = 12$ meter (karena jarak bernilai positif). Maka tinggi tembok yang dijangkau ujung tangga:\n$$t = x + 4 = 12 + 4 = 16 \\text{ meter}$$',
+      'Misalkan jarak kaki tangga ke dinding adalah $x$ meter, maka tinggi tembok adalah $t = (x + 4)$ meter.\nBerdasarkan Teorema Pythagoras:\n$$\\begin{aligned}\nx^2 + (x + 4)^2 &= 20^2 \\\\\nx^2 + x^2 + 8x + 16 &= 400 \\\\\n2x^2 + 8x + 16 - 400 &= 0 \\\\\n2x^2 + 8x - 384 &= 0 \\\\\nx^2 + 4x - 192 &= 0 \\\\\n(x + 16)(x - 12) &= 0\n\\end{aligned}$$\nDiperoleh $x = -16$ (tidak memenuhi karena jarak harus positif) atau $x = 12$ meter.\nSubstitusikan $x = 12$ untuk memperoleh tinggi tembok:\n$$\\begin{aligned}\nt &= x + 4 \\\\\n&= 12 + 4 \\\\\n&= 16\\text{ meter}\n\\end{aligned}$$\nJawaban yang benar adalah D.',
   },
   {
     id: 'uh-11',
@@ -267,28 +316,23 @@ export const uhQuestionsData: UHQuestion[] = [
     isOptional: true,
     points: 5,
     cognitiveLevel: 'Problem Solving SNBT',
-    categoryTag: 'Pecahan Rasional Kuadrat',
+    categoryTag: 'Sintesis Parameter & Akar',
     question:
-      '[OPSIONAL/BONUS +5] Tentukan himpunan nilai $x$ bilangan riil yang memenuhi persamaan berikut (syarat $x \\neq 3$)!',
-    mathPrompt: '\\frac{4x + 1}{x - 3} = x + \\frac{11}{x - 3}',
-    type: 'text',
-    correctAnswer: '2 atau 5',
-    acceptedAnswers: [
-      '2 atau 5',
-      '5 atau 2',
-      '2, 5',
-      '5, 2',
-      '2,5',
-      '5,2',
-      '{2, 5}',
-      '{5, 2}',
-      'x = 2 atau x = 5',
-      '2 dan 5',
-      'x=2 atau x=5',
+      '[OPSIONAL/BONUS +5] Diketahui salah satu akar dari persamaan kuadrat berikut adalah $x_1 = 2$. Jika $x_2$ adalah akar lainnya, tentukan nilai dari $m^2 + x_2^2$!',
+    mathPrompt: '(m - 1)x^2 - (2m + 4)x + (3m + 3) = 0',
+    type: 'choice',
+    options: [
+      { key: 'A', text: '10' },
+      { key: 'B', text: '13' },
+      { key: 'C', text: '18' },
+      { key: 'D', text: '25' },
+      { key: 'E', text: '27' },
     ],
-    hint: 'Pindahkan $\\frac{11}{x - 3}$ ke ruas kiri sehingga pecahan dapat dikurangkan langsung, lalu kalikan kedua ruas dengan $(x - 3)$.',
+    correctAnswer: 'C',
+    acceptedAnswers: ['C', 'c'],
+    hint: 'Substitusikan $x = 2$ ke dalam persamaan untuk menemukan nilai $m$, lalu masukkan kembali nilai $m$ guna menentukan akar kedua $x_2$.',
     explanation:
-      '$$\\frac{4x + 1 - 11}{x - 3} = x$$\n$$\\implies \\frac{4x - 10}{x - 3} = x$$\n$$\\implies 4x - 10 = x(x - 3)$$\n$$4x - 10 = x^2 - 3x$$\n$$\\implies x^2 - 7x + 10 = 0$$\n$$\\implies (x - 2)(x - 5) = 0$$\nDiperoleh $x = 2$ atau $x = 5$. Keduanya memenuhi syarat batas $x \\neq 3$.',
+      'Langkah 1 — Substitusikan akar $x_1 = 2$ untuk menentukan nilai parameter $m$:\n$$\\begin{aligned}\n(m - 1)(2)^2 - (2m + 4)(2) + (3m + 3) &= 0 \\\\\n4(m - 1) - 2(2m + 4) + 3m + 3 &= 0 \\\\\n4m - 4 - 4m - 8 + 3m + 3 &= 0 \\\\\n3m - 9 &= 0 \\\\\n3m &= 9 \\\\\nm &= 3\n\\end{aligned}$$\nLangkah 2 — Substitusikan $m = 3$ ke persamaan kuadrat awal:\n$$\\begin{aligned}\n(3 - 1)x^2 - (2(3) + 4)x + (3(3) + 3) &= 0 \\\\\n2x^2 - 10x + 12 &= 0 \\\\\nx^2 - 5x + 6 &= 0 \\\\\n(x - 2)(x - 3) &= 0\n\\end{aligned}$$\nKarena $x_1 = 2$, maka akar lainnya adalah $x_2 = 3$.\nLangkah 3 — Hitung nilai $m^2 + x_2^2$:\n$$\\begin{aligned}\nm^2 + x_2^2 &= 3^2 + 3^2 \\\\\n&= 9 + 9 \\\\\n&= 18\n\\end{aligned}$$\nJawaban yang benar adalah C.',
   },
   {
     id: 'uh-12',
@@ -296,23 +340,34 @@ export const uhQuestionsData: UHQuestion[] = [
     isOptional: true,
     points: 5,
     cognitiveLevel: 'Problem Solving SNBT',
-    categoryTag: 'Kecukupan Data SNBT (Data Sufficiency)',
+    categoryTag: 'Pemodelan Geometri: Kolam & Jalan Setapak',
+    stimulus: {
+      tag: 'WACANA SOAL',
+      title: 'Konstruksi Jalur Pedestrian di Sekeliling Kolam Renang',
+      text: 'Sebuah kolam renang berbentuk persegi panjang memiliki luas permukaan air sebesar $140\\text{ m}^2$. Ukuran panjang kolam tersebut dirancang $4\\text{ meter}$ lebih dari lebarnya. Di sekeliling tepi luar kolam renang dibangun jalan setapak bertekstur paving dengan lebar seragam $2\\text{ meter}$ pada keempat sisinya seperti tampak pada gambar skema berikut.',
+      source: 'Dokumen Desain Lansekap Fasilitas Olahraga',
+    },
+    diagramType: 'kolam-jalan',
+    kolamJalanConfig: {
+      luasKolamLabel: '140 m²',
+      selisihLabel: '4 m',
+      lebarJalanLabel: '2 m',
+    },
     question:
-      '[OPSIONAL/BONUS +5] Diberikan persamaan kuadrat $x^2 + bx + c = 0$ dengan akar-akar bilangan riil $r$ dan $s$. Apakah $r + s > 0$? Putuskan apakah pernyataan (1) dan (2) berikut cukup untuk menjawab pertanyaan:\n(1) $b < 0$\n(2) $c > 0$',
-    mathPrompt: 'x^2 + bx + c = 0 \\\\ r + s > 0?',
+      '[OPSIONAL/BONUS +5] Berdasarkan informasi dan skema di atas, hitunglah luas jalan setapak yang mengelilingi kolam renang tersebut!',
     type: 'choice',
     options: [
-      { key: 'A', text: 'Pernyataan (1) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (2) SAJA tidak cukup.' },
-      { key: 'B', text: 'Pernyataan (2) SAJA cukup untuk menjawab pertanyaan, tetapi pernyataan (1) SAJA tidak cukup.' },
-      { key: 'C', text: 'DUA pernyataan BERSAMA-SAMA cukup untuk menjawab pertanyaan, tetapi SATU pernyataan SAJA tidak cukup.' },
-      { key: 'D', text: 'Pernyataan (1) SAJA cukup untuk menjawab pertanyaan dan pernyataan (2) SAJA cukup.' },
-      { key: 'E', text: 'Pernyataan (1) dan pernyataan (2) tidak cukup untuk menjawab pertanyaan.' },
+      { key: 'A', text: '88 m²', math: '88\\text{ m}^2' },
+      { key: 'B', text: '96 m²', math: '96\\text{ m}^2' },
+      { key: 'C', text: '104 m²', math: '104\\text{ m}^2' },
+      { key: 'D', text: '112 m²', math: '112\\text{ m}^2' },
+      { key: 'E', text: '128 m²', math: '128\\text{ m}^2' },
     ],
-    correctAnswer: 'A',
-    acceptedAnswers: ['A', 'a'],
-    hint: 'Ingat bahwa jumlah akar $r + s = -\\frac{b}{a} = -b$. Maka pertanyaan "Apakah $r + s > 0$?" setara dengan "Apakah $b < 0$?".',
+    correctAnswer: 'D',
+    acceptedAnswers: ['D', 'd'],
+    hint: 'Misalkan lebar kolam $= l$ dan panjang kolam $= l + 4$. Cari nilai $l$ dan $p$ dari luas kolam $140\\text{ m}^2$, kemudian tambahkan $2 \\times 2\\text{ m}$ pada panjang dan lebar untuk mendapatkan ukuran luar.',
     explanation:
-      'Berdasarkan teorema Vieta, $r + s = -b$. Maka pertanyaan "Apakah $r + s > 0$?" ekuivalen dengan "Apakah $b < 0$?".\n\n- Pernyataan (1) $b < 0$: langsung menjamin $r + s = -b > 0$. Cukup.\n- Pernyataan (2) $c > 0$: hanya memberi $rs > 0$, yaitu kedua akar bertanda sama; jumlahnya bisa positif atau negatif. Tidak cukup.\n\nJawaban yang benar adalah A.',
+      'Langkah 1 — Misalkan lebar kolam $= l$ meter, maka panjang kolam $= (l + 4)$ meter. Gunakan luas kolam $= 140\\text{ m}^2$:\n$$\\begin{aligned}\nl(l + 4) &= 140 \\\\\nl^2 + 4l - 140 &= 0 \\\\\n(l + 14)(l - 10) &= 0\n\\end{aligned}$$\nKarena ukuran fisik harus bernilai positif, diperoleh lebar kolam $l = 10\\text{ m}$ dan panjang kolam:\n$$\\begin{aligned}\np &= l + 4 \\\\\n&= 10 + 4 \\\\\n&= 14\\text{ m}\n\\end{aligned}$$\nLangkah 2 — Karena jalan setapak selebar $2\\text{ m}$ mengelilingi keempat sisi kolam, ukuran luar total bertambah $2(2)\\text{ m} = 4\\text{ m}$:\n$$\\begin{aligned}\n\\text{Panjang luar} &= 14 + 2(2) \\\\\n&= 18\\text{ m} \\\\\n\\text{Lebar luar} &= 10 + 2(2) \\\\\n&= 14\\text{ m}\n\\end{aligned}$$\nLangkah 3 — Hitung luas jalan setapak:\n$$\\begin{aligned}\n\\text{Luas total luar} &= 18 \\times 14 \\\\\n&= 252\\text{ m}^2 \\\\\n\\text{Luas jalan setapak} &= \\text{Luas total luar} - \\text{Luas kolam} \\\\\n&= 252 - 140 \\\\\n&= 112\\text{ m}^2\n\\end{aligned}$$\nJawaban yang benar adalah D.',
   },
 ];
 
@@ -342,7 +397,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['A', 'a'],
     hint: 'Cari dua bilangan yang hasil kalinya $24$ dan jumlahnya $-11$, yaitu $-3$ dan $-8$.',
     explanation:
-      'Faktorkan persamaan:\n$$x^2 - 11x + 24 = (x - 3)(x - 8) = 0$$\nDiperoleh:\n$$x - 3 = 0 \\implies x_1 = 3$$\n$$x - 8 = 0 \\implies x_2 = 8$$\nJawaban: A.',
+      'Cari dua bilangan dengan hasil kali $24$ dan jumlah $-11$, yaitu $-3$ dan $-8$:\n$$\\begin{aligned}\nx^2 - 11x + 24 &= 0 \\\\\n(x - 3)(x - 8) &= 0\n\\end{aligned}$$\nPembuat nol masing-masing faktor:\n$$\\begin{aligned}\nx - 3 &= 0 \\\\\nx_1 &= 3\n\\end{aligned}$$\natau\n$$\\begin{aligned}\nx - 8 &= 0 \\\\\nx_2 &= 8\n\\end{aligned}$$\nJawaban: A.',
   },
   {
     id: 'pa-2',
@@ -352,7 +407,7 @@ export const paketAData: UHQuestion[] = [
     cognitiveLevel: 'Dasar',
     categoryTag: 'Rumus ABC / Kuadrat Sempurna',
     question:
-      'Tentukan akar-akar persamaan kuadrat berikut dengan rumus ABC atau melengkapkan kuadrat!',
+      'Tentukan akar-akar dari persamaan kuadrat berikut dengan menggunakan rumus Al-Khawarizmi (ABC) atau melengkapkan kuadrat sempurna!',
     mathPrompt: 'x^2 - 6x + 4 = 0',
     type: 'choice',
     options: [
@@ -366,7 +421,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['B', 'b'],
     hint: 'Gunakan $(x - 3)^2 = 5$ atau $x_{1,2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$.',
     explanation:
-      'Cara 1 — melengkapkan kuadrat:\n$$x^2 - 6x + 4 = 0 \\implies x^2 - 6x = -4$$\n$$(x - 3)^2 - 9 = -4 \\implies (x - 3)^2 = 5$$\n$$x - 3 = \\pm\\sqrt{5} \\implies x = 3 \\pm \\sqrt{5}$$\n\nCara 2 — rumus ABC:\n$$x_{1,2} = \\frac{6 \\pm \\sqrt{(-6)^2 - 4(1)(4)}}{2} = \\frac{6 \\pm \\sqrt{20}}{2}$$\n$$= \\frac{6 \\pm 2\\sqrt{5}}{2} = 3 \\pm \\sqrt{5}$$\nJawaban: B.',
+      'Cara 1 — Melengkapkan kuadrat sempurna:\n$$\\begin{aligned}\nx^2 - 6x + 4 &= 0 \\\\\nx^2 - 6x &= -4 \\\\\nx^2 - 6x + (-3)^2 &= -4 + (-3)^2 \\\\\n(x - 3)^2 &= 5 \\\\\nx - 3 &= \\pm\\sqrt{5} \\\\\nx &= 3 \\pm \\sqrt{5}\n\\end{aligned}$$\n\nCara 2 — Rumus Al-Khawarizmi (ABC) dengan $a = 1$, $b = -6$, $c = 4$:\n$$\\begin{aligned}\nx_{1,2} &= \\frac{-(-6) \\pm \\sqrt{(-6)^2 - 4(1)(4)}}{2(1)} \\\\\n&= \\frac{6 \\pm \\sqrt{36 - 16}}{2} \\\\\n&= \\frac{6 \\pm \\sqrt{20}}{2} \\\\\n&= \\frac{6 \\pm 2\\sqrt{5}}{2} \\\\\n&= 3 \\pm \\sqrt{5}\n\\end{aligned}$$\nJawaban: B.',
   },
   {
     id: 'pa-3',
@@ -390,7 +445,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['D', 'd'],
     hint: 'Substitusikan $x = -1$ ke persamaan: $2(-1)^2 + b(-1) + 6 = 0$.',
     explanation:
-      'Substitusi $x = -1$:\n$$2(-1)^2 + b(-1) + 6 = 0$$\n$$\\implies 2 - b + 6 = 0$$\n$$\\implies b = 8$$\nJawaban: D.',
+      'Substitusikan $x = -1$ ke dalam persamaan:\n$$\\begin{aligned}\n2(-1)^2 + b(-1) + 6 &= 0 \\\\\n2(1) - b + 6 &= 0 \\\\\n8 - b &= 0 \\\\\nb &= 8\n\\end{aligned}$$\nJawaban: D.',
   },
   {
     id: 'pa-4',
@@ -413,7 +468,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['C', 'c'],
     hint: 'Syarat akar kembar: $D = b^2 - 4ac = 0$.',
     explanation:
-      '$a = 2$, $b = -8$, $c = k$.\n$$D = (-8)^2 - 4(2)(k) = 64 - 8k = 0$$\n$$\\implies k = 8$$\nJawaban: C.',
+      'Identifikasi koefisien: $a = 2$, $b = -8$, dan $c = k$. Syarat akar kembar ($D = 0$):\n$$\\begin{aligned}\nb^2 - 4ac &= 0 \\\\\n(-8)^2 - 4(2)(k) &= 0 \\\\\n64 - 8k &= 0 \\\\\n8k &= 64 \\\\\nk &= 8\n\\end{aligned}$$\nJawaban: C.',
   },
   {
     id: 'pa-5',
@@ -437,7 +492,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['E', 'e'],
     hint: '$x_1 + x_2 = \\frac{10}{2} = 5$ dan $x_1x_2 = \\frac{3}{2}$.',
     explanation:
-      '$x_1 + x_2 = \\frac{10}{2} = 5$ dan $x_1x_2 = \\frac{3}{2}$.\n$$3(x_1 + x_2) + 2x_1x_2 = 3(5) + 2\\left(\\frac{3}{2}\\right)$$\n$$= 15 + 3 = 18$$\nJawaban: E.',
+      'Berdasarkan Teorema Vieta:\n$$\\begin{aligned}\nx_1 + x_2 &= -\\frac{-10}{2} \\\\\n&= 5 \\\\\nx_1 x_2 &= \\frac{3}{2}\n\\end{aligned}$$\nSubstitusikan ke bentuk yang ditanyakan:\n$$\\begin{aligned}\n3x_1 + 3x_2 + 2x_1x_2 &= 3(x_1 + x_2) + 2(x_1x_2) \\\\\n&= 3(5) + 2\\left(\\frac{3}{2}\\right) \\\\\n&= 15 + 3 \\\\\n&= 18\n\\end{aligned}$$\nJawaban: E.',
   },
   {
     id: 'pa-6',
@@ -461,7 +516,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['A', 'a'],
     hint: 'Gunakan $x_1^2 + x_2^2 = (x_1 + x_2)^2 - 2x_1x_2$.',
     explanation:
-      '$x_1 + x_2 = 7$ dan $x_1x_2 = 3$.\n$$x_1^2 + x_2^2 = (7)^2 - 2(3) = 49 - 6 = 43$$\nJawaban: A.',
+      'Dari persamaan $x^2 - 7x + 3 = 0$, diperoleh:\n$$\\begin{aligned}\nx_1 + x_2 &= 7 \\\\\nx_1 x_2 &= 3\n\\end{aligned}$$\nSubstitusikan ke identitas jumlah kuadrat akar:\n$$\\begin{aligned}\nx_1^2 + x_2^2 &= (x_1 + x_2)^2 - 2x_1 x_2 \\\\\n&= (7)^2 - 2(3) \\\\\n&= 49 - 6 \\\\\n&= 43\n\\end{aligned}$$\nJawaban: A.',
   },
   {
     id: 'pa-7',
@@ -478,7 +533,7 @@ export const paketAData: UHQuestion[] = [
     },
     question:
       'Berdasarkan data bacaan di atas, hitunglah nilai konstanta energi $p$ yang memenuhi persamaan lintasan tersebut!',
-    mathPrompt: 't^2 - 8t + p = 0 \\\\ |t_1 - t_2| = 2\\text{ detik}',
+    mathPrompt: 't^2 - 8t + p = 0',
     type: 'choice',
     options: [
       { key: 'A', text: '6' },
@@ -491,7 +546,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['D', 'd'],
     hint: '$t_1 + t_2 = 8$ dan $t_1t_2 = p$. Gunakan $(t_1 - t_2)^2 = (t_1 + t_2)^2 - 4t_1t_2$.',
     explanation:
-      'Berdasarkan teorema Vieta: $t_1 + t_2 = 8$ dan $t_1t_2 = p$.\n\nHubungan selisih kuadrat akar:\n$$(t_1 - t_2)^2 = (t_1 + t_2)^2 - 4t_1t_2$$\n$$2^2 = 8^2 - 4p$$\n$$\\implies 4 = 64 - 4p$$\n$$\\implies 4p = 60$$\n$$\\implies p = 15$$\nJadi, nilai konstanta energi $p$ adalah $15$. Jawaban: D.',
+      'Berdasarkan Teorema Vieta pada $t^2 - 8t + p = 0$:\n$$\\begin{aligned}\nt_1 + t_2 &= 8 \\\\\nt_1 t_2 &= p\n\\end{aligned}$$\nHubungan kuadrat selisih akar:\n$$\\begin{aligned}\n(t_1 - t_2)^2 &= (t_1 + t_2)^2 - 4t_1 t_2 \\\\\n2^2 &= 8^2 - 4p \\\\\n4 &= 64 - 4p \\\\\n4p &= 64 - 4 \\\\\n4p &= 60 \\\\\np &= 15\n\\end{aligned}$$\nJawaban: D.',
   },
   {
     id: 'pa-8',
@@ -514,7 +569,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['B', 'b'],
     hint: 'Gunakan $(x - x_1)(x - x_2) = 0$ atau $x^2 - (x_1 + x_2)x + x_1x_2 = 0$.',
     explanation:
-      '$x_1 + x_2 = -2 + 5 = 3$ dan $x_1x_2 = (-2)(5) = -10$.\n$$x^2 - (x_1 + x_2)x + x_1x_2$$\n$$= x^2 - 3x - 10 = 0$$\nJawaban: B.',
+      'Hitung jumlah dan hasil kali kedua akar:\n$$\\begin{aligned}\nx_1 + x_2 &= -2 + 5 \\\\\n&= 3 \\\\\nx_1 x_2 &= (-2)(5) \\\\\n&= -10\n\\end{aligned}$$\nSusun persamaan kuadrat baru:\n$$\\begin{aligned}\nx^2 - (x_1 + x_2)x + x_1 x_2 &= 0 \\\\\nx^2 - 3x - 10 &= 0\n\\end{aligned}$$\nJawaban: B.',
   },
   {
     id: 'pa-9',
@@ -538,7 +593,7 @@ export const paketAData: UHQuestion[] = [
     acceptedAnswers: ['E', 'e'],
     hint: 'Jumlah akar baru $= (x_1 + x_2) + 4$; hasil kali akar baru $= x_1x_2 + 2(x_1 + x_2) + 4$.',
     explanation:
-      '$x_1 + x_2 = 5$ dan $x_1x_2 = 3$.\n\nJumlah akar baru:\n$$(x_1 + 2) + (x_2 + 2) = (x_1 + x_2) + 4$$\n$$= 5 + 4 = 9$$\nHasil kali akar baru:\n$$(x_1 + 2)(x_2 + 2)$$\n$$= x_1x_2 + 2(x_1 + x_2) + 4$$\n$$= 3 + 10 + 4 = 17$$\n$$x^2 - 9x + 17 = 0$$\nJawaban: E.',
+      'Dari persamaan awal $x^2 - 5x + 3 = 0$, diperoleh:\n$$\\begin{aligned}\nx_1 + x_2 &= 5 \\\\\nx_1 x_2 &= 3\n\\end{aligned}$$\nJumlah akar baru:\n$$\\begin{aligned}\n\\alpha + \\beta &= (x_1 + 2) + (x_2 + 2) \\\\\n&= (x_1 + x_2) + 4 \\\\\n&= 5 + 4 \\\\\n&= 9\n\\end{aligned}$$\nHasil kali akar baru:\n$$\\begin{aligned}\n\\alpha\\beta &= (x_1 + 2)(x_2 + 2) \\\\\n&= x_1 x_2 + 2(x_1 + x_2) + 4 \\\\\n&= 3 + 2(5) + 4 \\\\\n&= 3 + 10 + 4 \\\\\n&= 17\n\\end{aligned}$$\nPersamaan kuadrat baru:\n$$\\begin{aligned}\nx^2 - (\\alpha + \\beta)x + \\alpha\\beta &= 0 \\\\\nx^2 - 9x + 17 &= 0\n\\end{aligned}$$\nJawaban: E.',
   },
   {
     id: 'pa-10',
@@ -556,12 +611,11 @@ export const paketAData: UHQuestion[] = [
     diagramType: 'tangga',
     diagramConfig: {
       panjangTangga: '17 m',
-      tinggiLabel: 't = x + 7 m',
-      jarakLabel: 'x m',
+      tinggiLabel: 't',
+      jarakLabel: 'x',
     },
     question:
-      'Berdasarkan sketsa dan spesifikasi di atas, tentukan tinggi jangkauan ujung tangga pada dinding gedung tersebut (dalam satuan meter)!',
-    mathPrompt: 'x^2 + (x + 7)^2 = 17^2 \\\\ t = x + 7',
+      'Berdasarkan sketsa dan spesifikasi di atas, tentukan tinggi jangkauan ujung tangga ($t$) pada dinding gedung tersebut!',
     type: 'choice',
     options: [
       { key: 'A', text: '8 m' },
@@ -572,9 +626,9 @@ export const paketAData: UHQuestion[] = [
     ],
     correctAnswer: 'C',
     acceptedAnswers: ['C', 'c'],
-    hint: 'Terapkan teorema Pythagoras: $x^2 + (x + 7)^2 = 17^2$. Sederhanakan ke bentuk umum, cari nilai $x$ positif, lalu hitung $t = x + 7$.',
+    hint: 'Nyatakan $t = x + 7$, lalu terapkan teorema Pythagoras pada segitiga siku-siku untuk mencari nilai $x$ positif.',
     explanation:
-      'Misalkan jarak tumpuan kaki tangga ke dinding $= x$ meter. Maka tinggi dinding $= (x + 7)$ meter.\n\nDalil Pythagoras:\n$$x^2 + (x + 7)^2 = 17^2$$\n$$x^2 + x^2 + 14x + 49 = 289$$\n$$2x^2 + 14x - 240 = 0$$\n$$\\implies x^2 + 7x - 120 = 0$$\n$$(x + 15)(x - 8) = 0$$\nDiperoleh $x = 8$ meter (karena jarak fisik harus positif).\nMaka tinggi dinding yang dicapai ujung tangga:\n$$t = x + 7 = 8 + 7 = 15 \\text{ meter}$$\nJawaban: C.',
+      'Misalkan jarak tumpuan kaki tangga ke dinding adalah $x$ meter, maka tinggi dinding adalah $t = (x + 7)$ meter.\nBerdasarkan Teorema Pythagoras:\n$$\\begin{aligned}\nx^2 + (x + 7)^2 &= 17^2 \\\\\nx^2 + x^2 + 14x + 49 &= 289 \\\\\n2x^2 + 14x + 49 - 289 &= 0 \\\\\n2x^2 + 14x - 240 &= 0 \\\\\nx^2 + 7x - 120 &= 0 \\\\\n(x + 15)(x - 8) &= 0\n\\end{aligned}$$\nDiperoleh $x = -15$ (tidak memenuhi) atau $x = 8$ meter.\nMaka tinggi dinding yang dicapai ujung tangga:\n$$\\begin{aligned}\nt &= x + 7 \\\\\n&= 8 + 7 \\\\\n&= 15\\text{ meter}\n\\end{aligned}$$\nJawaban: C.',
   },
 ];
 
@@ -603,7 +657,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['A', 'a'],
     hint: 'Gunakan metode ac: cari dua bilangan yang hasil kalinya $a \\cdot c = 2 \\cdot 3 = 6$ dan jumlahnya $-7$, yaitu $-1$ dan $-6$.',
     explanation:
-      'Faktorkan dengan pengelompokan:\n$$2x^2 - 7x + 3 = 0$$\n$$\\implies 2x^2 - x - 6x + 3 = 0$$\n$$\\implies x(2x - 1) - 3(2x - 1) = 0$$\n$$\\implies (2x - 1)(x - 3) = 0$$\nDiperoleh:\n$$2x - 1 = 0 \\implies x = \\frac{1}{2}$$\n$$x - 3 = 0 \\implies x = 3$$\nJawaban: A.',
+      'Faktorkan dengan pengelompokan suku tengah ($p = -1$ dan $q = -6$):\n$$\\begin{aligned}\n2x^2 - 7x + 3 &= 0 \\\\\n2x^2 - x - 6x + 3 &= 0 \\\\\nx(2x - 1) - 3(2x - 1) &= 0 \\\\\n(2x - 1)(x - 3) &= 0\n\\end{aligned}$$\nPembuat nol masing-masing faktor:\n$$\\begin{aligned}\n2x - 1 &= 0 \\\\\nx_1 &= \\frac{1}{2}\n\\end{aligned}$$\natau\n$$\\begin{aligned}\nx - 3 &= 0 \\\\\nx_2 &= 3\n\\end{aligned}$$\nJawaban: A.',
   },
   {
     id: 'pb-2',
@@ -611,9 +665,9 @@ export const paketBData: UHQuestion[] = [
     isOptional: false,
     points: 10,
     cognitiveLevel: 'Dasar',
-    categoryTag: 'Rumus ABC',
+    categoryTag: 'Rumus ABC / Kuadrat Sempurna',
     question:
-      'Akar-akar dari persamaan kuadrat berikut jika diselesaikan dengan rumus ABC adalah...',
+      'Tentukan akar-akar dari persamaan kuadrat berikut dengan menggunakan rumus Al-Khawarizmi (ABC) atau melengkapkan kuadrat sempurna!',
     mathPrompt: 'x^2 - 4x - 3 = 0',
     type: 'choice',
     options: [
@@ -625,9 +679,9 @@ export const paketBData: UHQuestion[] = [
     ],
     correctAnswer: 'B',
     acceptedAnswers: ['B', 'b'],
-    hint: '$a = 1$, $b = -4$, $c = -3$. Gunakan $x_{1,2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$.',
+    hint: 'Gunakan $(x - 2)^2 = 7$ atau rumus ABC $x_{1,2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ dengan $a = 1$, $b = -4$, $c = -3$.',
     explanation:
-      '$$x_{1,2} = \\frac{4 \\pm \\sqrt{(-4)^2 - 4(1)(-3)}}{2}$$\n$$= \\frac{4 \\pm \\sqrt{28}}{2} = \\frac{4 \\pm 2\\sqrt{7}}{2}$$\n$$= 2 \\pm \\sqrt{7}$$\nJawaban: B.',
+      'Cara 1 — Melengkapkan kuadrat sempurna:\n$$\\begin{aligned}\nx^2 - 4x - 3 &= 0 \\\\\nx^2 - 4x &= 3 \\\\\nx^2 - 4x + (-2)^2 &= 3 + (-2)^2 \\\\\n(x - 2)^2 &= 7 \\\\\nx - 2 &= \\pm\\sqrt{7} \\\\\nx &= 2 \\pm \\sqrt{7}\n\\end{aligned}$$\n\nCara 2 — Rumus Al-Khawarizmi (ABC) dengan $a = 1$, $b = -4$, $c = -3$:\n$$\\begin{aligned}\nx_{1,2} &= \\frac{-(-4) \\pm \\sqrt{(-4)^2 - 4(1)(-3)}}{2(1)} \\\\\n&= \\frac{4 \\pm \\sqrt{16 + 12}}{2} \\\\\n&= \\frac{4 \\pm \\sqrt{28}}{2} \\\\\n&= \\frac{4 \\pm 2\\sqrt{7}}{2} \\\\\n&= 2 \\pm \\sqrt{7}\n\\end{aligned}$$\nJawaban: B.',
   },
   {
     id: 'pb-3',
@@ -651,7 +705,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['C', 'c'],
     hint: 'Substitusikan $x = -2$ ke persamaan: $a(-2)^2 + 5(-2) - 6 = 0$.',
     explanation:
-      'Substitusi $x = -2$:\n$$a(-2)^2 + 5(-2) - 6 = 0$$\n$$\\implies 4a - 10 - 6 = 0$$\n$$\\implies 4a = 16$$\n$$\\implies a = 4$$\nJawaban: C.',
+      'Substitusikan $x = -2$ ke dalam persamaan:\n$$\\begin{aligned}\na(-2)^2 + 5(-2) - 6 &= 0 \\\\\n4a - 10 - 6 &= 0 \\\\\n4a - 16 &= 0 \\\\\n4a &= 16 \\\\\na &= 4\n\\end{aligned}$$\nJawaban: C.',
   },
   {
     id: 'pb-4',
@@ -675,7 +729,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['D', 'd'],
     hint: 'Gunakan $D = (-2m)^2 - 4(m)(3) = 0$.',
     explanation:
-      '$a = m$, $b = -2m$, $c = 3$.\n$$D = (-2m)^2 - 4(m)(3) = 4m^2 - 12m = 0$$\n$$4m(m - 3) = 0$$\nKarena $m \\neq 0$, maka $m = 3$.\nJawaban: D.',
+      'Identifikasi koefisien: $a = m$, $b = -2m$, dan $c = 3$. Syarat akar kembar ($D = 0$):\n$$\\begin{aligned}\nb^2 - 4ac &= 0 \\\\\n(-2m)^2 - 4(m)(3) &= 0 \\\\\n4m^2 - 12m &= 0 \\\\\n4m(m - 3) &= 0\n\\end{aligned}$$\nKarena disyaratkan $m \\neq 0$, maka $m = 3$.\nJawaban: D.',
   },
   {
     id: 'pb-5',
@@ -699,7 +753,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['E', 'e'],
     hint: '$\\alpha + \\beta = \\frac{9}{3} = 3$ dan $\\alpha\\beta = \\frac{4}{3}$. Hitung $2(\\alpha + \\beta) + 3(\\alpha\\beta)$.',
     explanation:
-      '$\\alpha + \\beta = \\frac{9}{3} = 3$ dan $\\alpha\\beta = \\frac{4}{3}$.\n$$2(\\alpha + \\beta) + 3\\alpha\\beta = 2(3) + 3\\left(\\frac{4}{3}\\right)$$\n$$= 6 + 4 = 10$$\nJawaban: E.',
+      'Berdasarkan Teorema Vieta:\n$$\\begin{aligned}\n\\alpha + \\beta &= -\\frac{-9}{3} \\\\\n&= 3 \\\\\n\\alpha\\beta &= \\frac{4}{3}\n\\end{aligned}$$\nSubstitusikan ke bentuk yang ditanyakan:\n$$\\begin{aligned}\n2\\alpha + 2\\beta + 3\\alpha\\beta &= 2(\\alpha + \\beta) + 3(\\alpha\\beta) \\\\\n&= 2(3) + 3\\left(\\frac{4}{3}\\right) \\\\\n&= 6 + 4 \\\\\n&= 10\n\\end{aligned}$$\nJawaban: E.',
   },
   {
     id: 'pb-6',
@@ -723,7 +777,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['A', 'a'],
     hint: 'Gunakan $p^2 + q^2 = (p + q)^2 - 2pq$. Dari persamaan, $p + q = \\frac{8}{2} = 4$ dan $pq = \\frac{3}{2}$.',
     explanation:
-      '$p + q = \\frac{8}{2} = 4$ dan $pq = \\frac{3}{2}$.\n$$p^2 + q^2 = (p + q)^2 - 2pq = (4)^2 - 2\\left(\\frac{3}{2}\\right) = 16 - 3 = 13$$\nJawaban: A.',
+      'Dari persamaan $2x^2 - 8x + 3 = 0$, diperoleh:\n$$\\begin{aligned}\np + q &= \\frac{8}{2} \\\\\n&= 4 \\\\\npq &= \\frac{3}{2}\n\\end{aligned}$$\nSubstitusikan ke identitas jumlah kuadrat akar:\n$$\\begin{aligned}\np^2 + q^2 &= (p + q)^2 - 2pq \\\\\n&= (4)^2 - 2\\left(\\frac{3}{2}\\right) \\\\\n&= 16 - 3 \\\\\n&= 13\n\\end{aligned}$$\nJawaban: A.',
   },
   {
     id: 'pb-7',
@@ -740,7 +794,7 @@ export const paketBData: UHQuestion[] = [
     },
     question:
       'Berdasarkan informasi di atas, tentukan nilai koefisien parameter hambatan $k$ yang memenuhi persamaan tersebut!',
-    mathPrompt: 't^2 - 7t + k = 0 \\\\ |t_1 - t_2| = 3\\text{ detik}',
+    mathPrompt: 't^2 - 7t + k = 0',
     type: 'choice',
     options: [
       { key: 'A', text: '6' },
@@ -753,7 +807,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['B', 'b'],
     hint: '$(t_1 - t_2)^2 = (t_1 + t_2)^2 - 4t_1t_2$. Substitusikan $t_1 + t_2 = 7$ dan $t_1t_2 = k$.',
     explanation:
-      'Berdasarkan teorema Vieta: $t_1 + t_2 = 7$ dan $t_1t_2 = k$.\n\n$$(t_1 - t_2)^2 = (t_1 + t_2)^2 - 4t_1t_2$$\n$$3^2 = 7^2 - 4k$$\n$$\\implies 9 = 49 - 4k$$\n$$\\implies 4k = 40$$\n$$\\implies k = 10$$\nJadi, nilai parameter $k$ adalah $10$. Jawaban: B.',
+      'Berdasarkan Teorema Vieta pada $t^2 - 7t + k = 0$:\n$$\\begin{aligned}\nt_1 + t_2 &= 7 \\\\\nt_1 t_2 &= k\n\\end{aligned}$$\nHubungan kuadrat selisih akar:\n$$\\begin{aligned}\n(t_1 - t_2)^2 &= (t_1 + t_2)^2 - 4t_1 t_2 \\\\\n3^2 &= 7^2 - 4k \\\\\n9 &= 49 - 4k \\\\\n4k &= 49 - 9 \\\\\n4k &= 40 \\\\\nk &= 10\n\\end{aligned}$$\nJawaban: B.',
   },
   {
     id: 'pb-8',
@@ -776,7 +830,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['C', 'c'],
     hint: 'Gunakan $(x - x_1)(x - x_2) = 0$ atau $x^2 - (x_1 + x_2)x + x_1x_2 = 0$.',
     explanation:
-      '$x_1 + x_2 = -4 + 5 = 1$ dan $x_1x_2 = (-4)(5) = -20$.\n$$x^2 - (x_1 + x_2)x + x_1x_2 = 0$$\n$$x^2 - x - 20 = 0$$\nJawaban: C.',
+      'Hitung jumlah dan hasil kali kedua akar:\n$$\\begin{aligned}\nx_1 + x_2 &= -4 + 5 \\\\\n&= 1 \\\\\nx_1 x_2 &= (-4)(5) \\\\\n&= -20\n\\end{aligned}$$\nSusun persamaan kuadrat baru:\n$$\\begin{aligned}\nx^2 - (x_1 + x_2)x + x_1 x_2 &= 0 \\\\\nx^2 - x - 20 &= 0\n\\end{aligned}$$\nJawaban: C.',
   },
   {
     id: 'pb-9',
@@ -800,7 +854,7 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['D', 'd'],
     hint: 'Jumlah akar baru $= (x_1 + x_2) - 6$; hasil kali akar baru $= x_1x_2 - 3(x_1 + x_2) + 9$.',
     explanation:
-      '$x_1 + x_2 = 2$ dan $x_1x_2 = -1$.\n\nJumlah akar baru:\n$$(x_1 - 3) + (x_2 - 3) = (x_1 + x_2) - 6 = 2 - 6 = -4$$\nHasil kali akar baru:\n$$(x_1 - 3)(x_2 - 3) = x_1x_2 - 3(x_1 + x_2) + 9$$\n$$= -1 - 3(2) + 9 = 2$$\nMaka persamaan kuadrat baru:\n$$x^2 - (-4)x + 2 = x^2 + 4x + 2 = 0$$\nJawaban: D.',
+      'Dari persamaan awal $x^2 - 2x - 1 = 0$, diperoleh:\n$$\\begin{aligned}\nx_1 + x_2 &= 2 \\\\\nx_1 x_2 &= -1\n\\end{aligned}$$\nJumlah akar baru:\n$$\\begin{aligned}\n\\alpha + \\beta &= (x_1 - 3) + (x_2 - 3) \\\\\n&= (x_1 + x_2) - 6 \\\\\n&= 2 - 6 \\\\\n&= -4\n\\end{aligned}$$\nHasil kali akar baru:\n$$\\begin{aligned}\n\\alpha\\beta &= (x_1 - 3)(x_2 - 3) \\\\\n&= x_1 x_2 - 3(x_1 + x_2) + 9 \\\\\n&= -1 - 3(2) + 9 \\\\\n&= -1 - 6 + 9 \\\\\n&= 2\n\\end{aligned}$$\nMaka persamaan kuadrat baru:\n$$\\begin{aligned}\nx^2 - (\\alpha + \\beta)x + \\alpha\\beta &= 0 \\\\\nx^2 - (-4)x + 2 &= 0 \\\\\nx^2 + 4x + 2 &= 0\n\\end{aligned}$$\nJawaban: D.',
   },
   {
     id: 'pb-10',
@@ -831,6 +885,6 @@ export const paketBData: UHQuestion[] = [
     acceptedAnswers: ['E', 'e'],
     hint: 'Misalkan lebar $= l$ meter. Nyatakan panjang dalam $l$, lalu gunakan rumus luas persegi panjang. Jangan lupa bahwa ukuran harus positif.',
     explanation:
-      'Misalkan lebar lahan $= l$ meter. Maka panjang lahan $= (l + 4)$ meter.\n\nLuas lahan:\n$$l(l + 4) = 96$$\n$$l^2 + 4l - 96 = 0$$\n$$(l + 12)(l - 8) = 0$$\nDiperoleh $l = 8$ meter (karena lebar harus positif).\nMaka panjang lahan:\n$$p = l + 4 = 8 + 4 = 12 \\text{ meter}$$\nJawaban: E.',
+      'Misalkan lebar lahan $= l$ meter, maka panjang lahan $= (l + 4)$ meter.\nBerdasarkan luas persegi panjang:\n$$\\begin{aligned}\nl(l + 4) &= 96 \\\\\nl^2 + 4l - 96 &= 0 \\\\\n(l + 12)(l - 8) &= 0\n\\end{aligned}$$\nDiperoleh $l = -12$ (tidak memenuhi) atau $l = 8$ meter.\nMaka panjang lahan taman baca:\n$$\\begin{aligned}\np &= l + 4 \\\\\n&= 8 + 4 \\\\\n&= 12\\text{ meter}\n\\end{aligned}$$\nJawaban: E.',
   },
 ];

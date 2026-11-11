@@ -4,6 +4,7 @@ import { MathView } from './MathView';
 import { MathText } from './MathText';
 import { TanggaDiagramSvg } from './TanggaDiagramSvg';
 import { TamanBacaDiagramSvg } from './TamanBacaDiagramSvg';
+import { KolamJalanDiagramSvg } from './KolamJalanDiagramSvg';
 import { isAnswerCorrect } from '../lib/answerCheck';
 import {
   Users,
@@ -125,6 +126,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, mode, answer, onC
         <TamanBacaDiagramSvg
           selisihLabel={question.persegiPanjangConfig.selisihLabel}
           luasLabel={question.persegiPanjangConfig.luasLabel}
+        />
+      )}
+      {question.diagramType === 'kolam-jalan' && question.kolamJalanConfig && (
+        <KolamJalanDiagramSvg
+          luasKolamLabel={question.kolamJalanConfig.luasKolamLabel}
+          selisihLabel={question.kolamJalanConfig.selisihLabel}
+          lebarJalanLabel={question.kolamJalanConfig.lebarJalanLabel}
         />
       )}
 

@@ -191,23 +191,23 @@ export const TanggaDiagramSvg: React.FC<TanggaDiagramProps> = ({
           <line x1="38" y1="235" x2="60" y2="235" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" className="text-slate-400 dark:text-slate-500" />
 
           {/* Badge: Tinggi Label */}
-          <g transform="translate(14, 135)">
+          <g transform="translate(42, 145)">
             <rect
-              x="-4"
+              x="-34"
               y="-12"
-              width="56"
+              width="68"
               height="24"
               rx="6"
               className="fill-white dark:fill-slate-900 stroke-indigo-400 dark:stroke-indigo-600"
               strokeWidth="1.2"
             />
             <text
-              x="24"
+              x="0"
               y="4"
               textAnchor="middle"
               className="text-[11px] font-bold fill-indigo-700 dark:fill-indigo-300"
             >
-              {tinggiLabel}
+              {tinggiLabel.includes('=') ? tinggiLabel : `Tinggi = ${tinggiLabel}`}
             </text>
           </g>
 

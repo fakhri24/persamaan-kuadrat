@@ -8,7 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "pdf:paket-a": "node scripts/generate-paket-a-pdf.mjs",
-    "pdf:paket-b": "node scripts/generate-paket-b-pdf.mjs"
+    "pdf:paket-b": "node scripts/generate-paket-b-pdf.mjs",
+    "pdf:uh": "node scripts/generate-uh-pdf.mjs",
+    "pdf:sidequest": "node scripts/generate-uh-pdf.mjs"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
