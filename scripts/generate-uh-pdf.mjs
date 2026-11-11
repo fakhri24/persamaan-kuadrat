@@ -315,7 +315,50 @@ const css = `
     overflow: hidden;
   }
   .page:last-child { page-break-after: auto; }
-  .masthead { border-top: 2.4mm solid #4338ca; padding-top: 2.8mm; }
+  .masthead {
+    border-top: 2.4mm solid #4338ca;
+    padding-top: 2.8mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 5mm;
+  }
+  .masthead-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .score-box {
+    width: 25mm;
+    border: .35mm solid #4338ca;
+    border-radius: 1.6mm;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .score-head {
+    background: #4338ca;
+    color: #fff;
+    font-size: 6.2pt;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 1.1mm 1mm;
+  }
+  .score-body {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 1mm 1.8mm;
+    font-size: 6.8pt;
+    font-weight: 700;
+    color: #94a3b8;
+  }
   .kicker {
     font-size: 6.8pt;
     letter-spacing: .13em;
@@ -476,12 +519,20 @@ const main = async () => {
       ${
         pageIndex === 0
           ? `<div class="masthead">
-              <div class="kicker">Evaluasi Resmi Bab 5 • Matematika SMA Kelas X</div>
-              <h1>ULANGAN HARIAN — PERSAMAAN KUADRAT</h1>
-              <div class="sub">10 Soal Wajib (100 Poin) + 2 Soal Opsional Bonus (+10 Poin) • Pilih satu jawaban yang paling tepat</div>
-              <div class="identity">
-                <div class="id-field"><span>Nama Siswa</span><span class="fill"></span></div>
-                <div class="id-field"><span>Kelas</span><span class="fill short"></span></div>
+              <div class="masthead-left">
+                <div>
+                  <div class="kicker">Evaluasi Resmi Bab 5 • Matematika SMA Kelas X</div>
+                  <h1>ULANGAN HARIAN — PERSAMAAN KUADRAT</h1>
+                  <div class="sub">10 Soal Wajib (100 Poin) + 2 Soal Opsional Bonus (+10 Poin) • Pilih satu jawaban yang paling tepat</div>
+                </div>
+                <div class="identity">
+                  <div class="id-field"><span>Nama Siswa</span><span class="fill"></span></div>
+                  <div class="id-field"><span>Kelas</span><span class="fill short"></span></div>
+                </div>
+              </div>
+              <div class="score-box">
+                <div class="score-head">Nilai Akhir</div>
+                <div class="score-body">/ 100</div>
               </div>
             </div>`
           : `<div class="slim-head">
